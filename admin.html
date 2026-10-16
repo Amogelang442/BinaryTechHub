@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Binary Tech Hub — Admin Inventory</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            background-color: #f4f6f9;
+            color: #333;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .admin-container {
+            max-width: 1200px;
+            margin: 30px auto;
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            padding: 30px;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #edf2f7;
+            padding-bottom: 20px;
+            margin-bottom: 25px;
+        }
+
+        .admin-header h1 {
+            margin: 0 0 6px 0;
+            font-size: 26px;
+            color: #1a202c;
+        }
+
+        .admin-header p {
+            margin: 0;
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .back-link {
+            text-decoration: none;
+            color: #0070f3;
+            font-weight: 600;
+            padding: 8px 16px;
+            border: 1px solid #0070f3;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .back-link:hover {
+            background: #0070f3;
+            color: #ffffff;
+        }
+
+        .admin-table-wrapper {
+            overflow-x: auto;
+        }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        .admin-table th {
+            background-color: #f8fafc;
+            color: #4a5568;
+            font-weight: 600;
+            padding: 14px 16px;
+            border-bottom: 2px solid #e2e8f0;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .admin-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #edf2f7;
+            vertical-align: middle;
+        }
+
+        .admin-table tr:hover {
+            background-color: #fcfdfe;
+        }
+
+        .product-code {
+            font-family: Consolas, monospace;
+            background: #edf2f7;
+            padding: 3px 6px;
+            border-radius: 4px;
+            color: #2d3748;
+            font-size: 13px;
+        }
+
+        .stock-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 13px;
+            background: #e6fffa;
+            color: #234e52;
+        }
+
+        .stock-badge.low {
+            background: #fff5f5;
+            color: #9b2c2c;
+        }
+
+        .stock-input {
+            width: 85px;
+            padding: 8px 10px;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .stock-input:focus {
+            border-color: #0070f3;
+            box-shadow: 0 0 0 2px rgba(0, 112, 243, 0.15);
+        }
+
+        .btn-update {
+            background-color: #0070f3;
+            color: #ffffff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-update:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-update:disabled {
+            background-color: #a0aec0;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-header">
+            <div>
+                <h1>Inventory Control Panel</h1>
+                <p>Manage product stock levels securely via ASP.NET Core REST API</p>
+            </div>
+            <a href="index.html" class="back-link">← Storefront</a>
+        </div>
+
+        <div class="admin-table-wrapper">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Product ID</th>
+                        <th>Name</th>
+                        <th>Price (ZAR)</th>
+                        <th>Current Stock</th>
+                        <th>New Stock Value</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="admin-product-rows">
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 24px; color: #718096;">
+                            Connecting to API server and loading live catalog...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="js/admin.js"></script>
+</body>
+</html>
