@@ -1,0 +1,14 @@
+# .NET build output & binaries
+bin/
+obj/
+*.user
+*.suo
+.vs/
+
+# Environment / local configs
+appsettings.Development.json
+
+# System metadata
+.DS_Store
+Thumbs.db
+.vscode/

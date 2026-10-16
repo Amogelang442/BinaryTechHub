@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Binary Tech Hub | Store</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Navigation / Header -->
+  <header>
+    <div class="header-container">
+      <div class="brand">
+        <h1>Binary Tech Hub</h1>
+      </div>
+      <button id="cart-toggle-btn" class="cart-trigger">
+        🛒 Cart (<span id="cart-count">0</span>)
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Storefront Catalog -->
+  <main>
+    <!-- Dynamic Category Filter Buttons -->
+    <section class="filters-section">
+      <h2>Categories</h2>
+      <div id="category-buttons" class="button-group"></div>
+    </section>
+
+    <!-- Dynamic Product Grid -->
+    <section class="catalog-section">
+      <h2>Products</h2>
+      <div id="product-grid" class="product-grid"></div>
+    </section>
+  </main>
+
+  <!-- Sliding Cart Drawer & Overlay -->
+  <div id="cart-overlay" class="cart-overlay"></div>
+  <aside id="cart-drawer" class="cart-drawer">
+    <div class="cart-header">
+      <h2>Your Cart</h2>
+      <button id="close-cart-btn" class="close-btn">&times;</button>
+    </div>
+
+    <div id="cart-items" class="cart-items">
+      <!-- Injected dynamically by JavaScript -->
+    </div>
+
+    <div class="cart-footer">
+      <div class="summary-line">
+        <span>Subtotal</span>
+        <span id="cart-subtotal">R 0.00</span>
+      </div>
+      <div class="summary-line">
+        <span>VAT (15%)</span>
+        <span id="cart-vat">R 0.00</span>
+      </div>
+      <div class="summary-line total-line">
+        <span>Total</span>
+        <span id="cart-total">R 0.00</span>
+      </div>
+      <button id="checkout-btn" class="checkout-btn" disabled>Proceed to Checkout</button>
+    </div>
+  </aside>
+
+  <!-- Checkout & Payment Modal -->
+  <div id="checkout-overlay" class="modal-overlay">
+    <div class="checkout-modal">
+      <div class="modal-header">
+        <h2>Secure Checkout</h2>
+        <button id="close-checkout-btn" class="close-btn">&times;</button>
+      </div>
+
+      <!-- 1. Customer Form View -->
+      <div id="checkout-view">
+        <form id="payment-form" onsubmit="handlePaymentSubmit(event)">
+          <div class="form-section">
+            <h3>1. Delivery Details</h3>
+            <div class="form-row">
+              <input type="text" id="cust-name" placeholder="Full Name" required>
+              <input type="email" id="cust-email" placeholder="Email Address" required>
+            </div>
+            <input type="text" id="cust-address" placeholder="Physical Delivery Address" required>
+          </div>
+
+          <div class="form-section">
+            <h3>2. Payment Method</h3>
+            <div class="payment-tabs">
+              <button type="button" class="tab-btn active" onclick="selectPayMethod('card')">Credit / Debit Card</button>
+              <button type="button" class="tab-btn" onclick="selectPayMethod('eft')">Instant EFT</button>
+            </div>
+
+            <div id="card-fields">
+              <div class="card-input-wrapper">
+                <input type="text" id="card-num" placeholder="Card Number (e.g. 4xxx / 5xxx)" maxlength="19" required>
+                <span id="card-brand" class="card-brand">CARD</span>
+              </div>
+              <div class="form-row">
+                <input type="text" id="card-exp" placeholder="MM/YY" maxlength="5" required>
+                <input type="text" id="card-cvv" placeholder="CVV" maxlength="3" required>
+              </div>
+            </div>
+
+            <div id="eft-fields" style="display: none;">
+              <p class="eft-instruction">Select your bank for a simulated Instant EFT authorization:</p>
+              <select id="bank-select" class="form-select">
+                <option value="FNB">FNB / RMB</option>
+                <option value="Capitec">Capitec Bank</option>
+                <option value="StandardBank">Standard Bank</option>
+                <option value="Nedbank">Nedbank</option>
+                <option value="Absa">Absa</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="checkout-summary-box">
+            <div class="summary-line">
+              <span>Amount Due (incl. 15% VAT):</span>
+              <strong id="modal-total-pay">R 0.00</strong>
+            </div>
+          </div>
+
+          <button type="submit" id="pay-submit-btn" class="pay-btn">
+            Pay Now
+          </button>
+        </form>
+      </div>
+
+      <!-- OTP Authentication View -->
+      <div id="otp-view" class="status-view" style="display: none; text-align: center;">
+        <div style="font-size: 2.2rem; margin-bottom: 0.5rem;">🔐</div>
+        <h3 style="margin-bottom: 0.4rem; color: #0f172a;">Verify Transaction</h3>
+        <p style="font-size: 0.9rem; color: #64748b; margin-bottom: 1.25rem;">
+          We sent a 6-digit verification code to <br><strong id="otp-target-email"></strong>
+        </p>
+
+        <div style="margin-bottom: 1rem;">
+          <input 
+            type="text" 
+            id="otp-input" 
+            placeholder="Enter 6-digit PIN" 
+            maxlength="6" 
+            style="letter-spacing: 0.35em; font-size: 1.3rem; font-weight: bold; text-align: center; width: 220px; padding: 0.6rem; border: 2px solid #cbd5e1; border-radius: 6px; outline: none;"
+          >
+          <p id="otp-error" style="color: #ef4444; font-size: 0.85rem; margin-top: 0.5rem; display: none;">Invalid PIN. Please try again.</p>
+        </div>
+
+        <button type="button" onclick="verifyOtpAndPay()" class="pay-btn" style="max-width: 240px; margin: 0 auto; display: block;">
+          Confirm & Pay
+        </button>
+      </div>
+
+      <!-- 2. Processing State -->
+      <div id="processing-view" class="status-view" style="display: none;">
+        <div class="spinner"></div>
+        <p>Connecting to payment gateway...</p>
+      </div>
+
+      <!-- 3. Receipt / Order Success View -->
+      <div id="success-view" class="status-view" style="display: none;">
+        <div class="success-icon">✓</div>
+        <h2>Order Confirmed!</h2>
+        <p class="receipt-sub">Thank you for your purchase with Binary Tech Hub.</p>
+        
+        <div class="receipt-details">
+          <p><strong>Order Ref:</strong> <span id="receipt-ref"></span></p>
+          <p><strong>Billed To:</strong> <span id="receipt-name"></span></p>
+          <p><strong>Total Paid:</strong> <span id="receipt-amount"></span></p>
+          <p><strong>Status:</strong> <span class="badge-success">Payment Approved</span></p>
+        </div>
+
+        <button type="button" onclick="dismissCheckout()" class="pay-btn" style="margin-top: 1.5rem;">Done</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Third-party EmailJS SDK -->
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+  <!-- Project Scripts (Only loaded once) -->
+  <script src="js/products.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
