@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:5185/api/products';
+const API_URL = 'https://binarytechhub-api.onrender.com/api/products';
 const BACKEND_ADMIN_KEY = 'BTH-Secret-Admin-2026'; // Passed in X-Admin-Key header
 
 // 5 FIXED GROUP MEMBER CREDENTIALS
