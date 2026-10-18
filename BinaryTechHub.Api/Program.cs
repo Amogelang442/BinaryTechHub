@@ -7,16 +7,11 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' was not found.");
 
-// 2. Database context
+// 2. Database context (Clean Pomelo configuration without retrying transaction conflicts)
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(
         connectionString,
-        new MySqlServerVersion(new Version(8, 0, 36)),
-        mySqlOptions => mySqlOptions.EnableRetryOnFailure(
-            maxRetryCount: 5,
-            maxRetryDelay: TimeSpan.FromSeconds(10),
-            errorNumbersToAdd: null
-        )
+        new MySqlServerVersion(new Version(8, 0, 36))
     )
 );
 
@@ -35,24 +30,15 @@ builder.Services.AddControllers();
 
 var app = builder.Build();
 
-// CRITICAL: CORS must run first before DeveloperExceptionPage, Routing, or Controllers
-app.UseCors();
-
-if (app.Environment.IsDevelopment() || true) // Enable detailed errors on cloud during setup
-{
-    app.UseDeveloperExceptionPage();
-}
-
+app.UseDeveloperExceptionPage();
 app.UseRouting();
-
-app.UseCors(); // Kept for route endpoint matching
-
+app.UseCors();
 app.UseAuthorization();
-
 app.MapControllers();
 
-//AUTO-CREATE MISSING TABLES IN AIVEN MYSQL
-using (var scope = app.Services.CreateScope()) {
+// 4. Auto-create missing tables in Aiven MySQL on startup
+using (var scope = app.Services.CreateScope())
+{
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.EnsureCreated();
 }
