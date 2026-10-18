@@ -4,7 +4,7 @@
  * Mirrors: MySQL database 'binary_tech_hub.products'
  */
 
-const API_BASE_URL = 'http://localhost:5185/api';
+const API_BASE_URL = 'https://binarytechhub-api.onrender.com/api';
 
 var categories = [
   { id: 1, name: "Smartphones", slug: "smartphones" },
