@@ -1056,3 +1056,223 @@ body {
 .absa-dot     { background: #c8102e; }
 .nedbank-dot  { background: #005a36; }
 .tyme-dot     { background: #1f2937; }
+
+/* ==========================================================================
+   MOBILE RESPONSIVE SYSTEM (BINARY TECH HUB)
+   ========================================================================== */
+
+/* 1. Global Viewport Clamping (Eliminates horizontal scrolling & right-side white void) */
+html, body {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box !important;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* 2. Responsive Rules for Mobile (max-width: 768px) */
+@media (max-width: 768px) {
+  
+  /* --- NAVBAR & SEARCH --- */
+  .navbar {
+    padding: 12px 16px !important;
+    width: 100% !important;
+  }
+
+  .nav-container {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    gap: 10px 0 !important;
+  }
+
+  /* Logo on top-left */
+  .logo {
+    order: 1 !important;
+    font-size: 18px !important;
+  }
+
+  /* Flatten nav-actions so children participate directly in nav-container flex */
+  .nav-actions {
+    display: contents !important;
+  }
+
+  /* Cart button on top-right */
+  .cart-btn {
+    order: 2 !important;
+    padding: 8px 14px !important;
+    margin-left: auto !important;
+  }
+
+  /* Search bar spans 100% width on row 2 */
+  .nav-search-wrapper {
+    order: 3 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-top: 6px !important;
+  }
+
+  .nav-search-input {
+    width: 100% !important;
+    font-size: 14px !important;
+    padding: 10px 14px 10px 38px !important;
+  }
+
+  /* --- HERO SECTION --- */
+  .hero-section {
+    padding: 32px 16px 24px 16px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    text-align: center !important;
+  }
+
+  .hero-badge {
+    font-size: 12px !important;
+    padding: 6px 12px !important;
+  }
+
+  .hero-title {
+    font-size: 28px !important;
+    line-height: 1.25 !important;
+    margin: 16px 0 !important;
+  }
+
+  .hero-subtitle {
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+    padding: 0 4px !important;
+  }
+
+  /* Hero Stats (Make it fit comfortably without pushing container width) */
+  .hero-stats {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    justify-content: space-around !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 12px 8px !important;
+    margin: 24px auto 0 auto !important;
+    gap: 4px !important;
+  }
+
+  .stat-pill {
+    padding: 0 4px !important;
+  }
+
+  .stat-num {
+    font-size: 16px !important;
+    font-weight: 700 !important;
+  }
+
+  .stat-label {
+    font-size: 10px !important;
+    white-space: nowrap !important;
+  }
+
+  .stat-divider {
+    height: 24px !important;
+  }
+
+  /* --- CATALOG & CATEGORY FILTER --- */
+  .store-main {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 24px 16px !important;
+  }
+
+  .catalog-header {
+    text-align: center !important;
+    margin-bottom: 20px !important;
+  }
+
+  .section-title {
+    font-size: 24px !important;
+  }
+
+  /* Horizontal touch scrolling for category buttons */
+  .category-pills {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    gap: 8px !important;
+    padding: 8px 4px 14px 4px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    scrollbar-width: none; /* Hide scrollbar Firefox */
+  }
+
+  .category-pills::-webkit-scrollbar {
+    display: none; /* Hide scrollbar Chrome/Safari */
+  }
+
+  .category-btn, .cat-pill {
+    white-space: nowrap !important;
+    font-size: 13px !important;
+    padding: 8px 14px !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* --- PRODUCT GRID (1 column centered) --- */
+  .product-grid {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    gap: 18px !important;
+    padding: 0 !important;
+    margin: 0 auto !important;
+  }
+
+  .product-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+  }
+
+  /* --- CHECKOUT MODAL & CUSTOMIZER --- */
+  .checkout-modal-card, .customizer-card {
+    width: 94vw !important;
+    max-width: 94vw !important;
+    max-height: 90vh !important;
+    overflow-y: auto !important;
+    padding: 20px 16px !important;
+  }
+
+  .customizer-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+  }
+
+  .bank-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  /* --- FOOTER --- */
+  .footer {
+    width: 100% !important;
+    padding: 30px 16px !important;
+  }
+
+  .footer-container {
+    flex-direction: column !important;
+    text-align: center !important;
+    gap: 16px !important;
+  }
+}
