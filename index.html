@@ -3,51 +3,120 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Binary Tech Hub | Store</title>
+  <title>Binary Tech Hub | Next-Gen Tech Store</title>
+  
+  <!-- Modern Font: Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+  
   <link rel="stylesheet" href="styles.css">
+  
+  <!-- EmailJS SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
 <body>
 
-  <!-- Navigation / Header -->
-  <header>
-    <div class="header-container">
-      <div class="brand">
-        <h1>Binary Tech Hub</h1>
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="logo">
+        <span class="logo-icon">⚡</span>
+        <span class="logo-text">Binary<span class="logo-accent">Tech</span>Hub</span>
+      </a>
+
+      <div class="nav-actions">
+        <!-- Search Bar in Nav -->
+        <div class="nav-search-wrapper">
+          <svg class="nav-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input 
+            type="text" 
+            id="catalog-search-input" 
+            class="nav-search-input" 
+            placeholder="Search products, brands, specs..." 
+            oninput="handleCatalogSearch(this.value)"
+          >
+        </div>
+
+        <button id="cart-toggle-btn" class="cart-btn" aria-label="Open Cart">
+          <svg class="cart-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-2z"></path>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <path d="M16 10a4 4 0 0 1-8 0"></path>
+          </svg>
+          <span class="cart-label">Cart</span>
+          <span id="cart-count" class="cart-count-badge">0</span>
+        </button>
       </div>
-      <button id="cart-toggle-btn" class="cart-trigger">
-        🛒 Cart (<span id="cart-count">0</span>)
-      </button>
     </div>
   </header>
 
-  <!-- Main Storefront Catalog -->
-  <main>
-    <!-- Dynamic Category Filter Buttons -->
-    <section class="filters-section">
-      <h2>Categories</h2>
-      <div id="category-buttons" class="button-group"></div>
-    </section>
+  <!-- Vibrant Animated Hero Section -->
+  <section class="hero-section">
+    <div class="hero-glow hero-glow-1"></div>
+    <div class="hero-glow hero-glow-2"></div>
+    
+    <div class="hero-content">
+      <div class="hero-badge">🚀 Next-Gen Hardware & Peripherals</div>
+      <h1 class="hero-title">Experience the Future of <span class="gradient-text">Pure Performance</span></h1>
+      <p class="hero-subtitle">
+        South Africa’s premier hardware vault. From bleeding-edge Apple M-series and Snapdragon flagships to high-precision 3D printers and audiophile gear.
+      </p>
 
-    <!-- Dynamic Product Grid -->
-    <section class="catalog-section">
-      <h2>Products</h2>
-      <div id="product-grid" class="product-grid"></div>
-    </section>
+      <div class="hero-stats">
+        <div class="stat-pill">
+          <span class="stat-num">50+</span>
+          <span class="stat-label">Catalog Items</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-pill">
+          <span class="stat-num">100%</span>
+          <span class="stat-label">Authentic Tech</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-pill">
+          <span class="stat-num">24h</span>
+          <span class="stat-label">Express Delivery</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Catalog Section -->
+  <main class="store-main">
+    <div class="catalog-header">
+      <div class="section-tag">Explore Collection</div>
+      <h2 class="section-title">Curated Hardware</h2>
+      <p class="section-subtitle">Select a category below to filter live store inventory</p>
+
+      <!-- Category Filter Pills (Dynamically filled via app.js) -->
+      <div id="category-buttons" class="category-pills">
+        <!-- Rendered by app.js -->
+      </div>
+    </div>
+
+    <!-- Product Grid (Dynamically filled via app.js) -->
+    <div id="product-grid" class="product-grid">
+      <!-- Cards rendered by app.js -->
+    </div>
   </main>
 
-  <!-- Sliding Cart Drawer & Overlay -->
-  <div id="cart-overlay" class="cart-overlay"></div>
+  <!-- Slide-Out Cart Drawer -->
+  <div id="cart-overlay" class="drawer-overlay"></div>
   <aside id="cart-drawer" class="cart-drawer">
-    <div class="cart-header">
-      <h2>Your Cart</h2>
-      <button id="close-cart-btn" class="close-btn">&times;</button>
+    <div class="drawer-header">
+      <h3>Your Shopping Cart</h3>
+      <button id="close-cart-btn" class="close-drawer-btn">&times;</button>
     </div>
 
-    <div id="cart-items" class="cart-items">
-      <!-- Injected dynamically by JavaScript -->
+    <div id="cart-items" class="cart-items-list">
+      <!-- Cart items rendered by app.js -->
     </div>
 
-    <div class="cart-footer">
+    <div class="drawer-footer">
       <div class="summary-line">
         <span>Subtotal</span>
         <span id="cart-subtotal">R 0.00</span>
@@ -60,126 +129,179 @@
         <span>Total</span>
         <span id="cart-total">R 0.00</span>
       </div>
-      <button id="checkout-btn" class="checkout-btn" disabled>Proceed to Checkout</button>
+
+      <button id="checkout-btn" class="checkout-submit-btn">
+        Proceed to Checkout
+      </button>
     </div>
   </aside>
 
-  <!-- Checkout & Payment Modal -->
+  <!-- Checkout & OTP Modal -->
   <div id="checkout-overlay" class="modal-overlay">
-    <div class="checkout-modal">
-      <div class="modal-header">
-        <h2>Secure Checkout</h2>
-        <button id="close-checkout-btn" class="close-btn">&times;</button>
-      </div>
+    <div class="checkout-modal-card">
+      <button id="close-checkout-btn" class="modal-close-icon">&times;</button>
 
-      <!-- 1. Customer Form View -->
+      <!-- View 1: Customer Details & Payment Options -->
       <div id="checkout-view">
-        <form id="payment-form" onsubmit="handlePaymentSubmit(event)">
+        <h3 class="modal-title">Express Secure Checkout</h3>
+        <p class="modal-sub">Order Total: <strong id="modal-total-pay" style="color: #4f46e5;">R 0.00</strong></p>
+
+        <form id="checkout-form" onsubmit="handlePaymentSubmit(event)">
           <div class="form-section">
-            <h3>1. Delivery Details</h3>
+            <h4 class="form-heading">1. Delivery Information</h4>
             <div class="form-row">
-              <input type="text" id="cust-name" placeholder="Full Name" required>
-              <input type="email" id="cust-email" placeholder="Email Address" required>
+              <input type="text" id="cust-name" class="form-input" placeholder="Full Name" required>
             </div>
-            <input type="text" id="cust-address" placeholder="Physical Delivery Address" required>
+            <div class="form-row">
+              <input type="email" id="cust-email" class="form-input" placeholder="Email Address (for OTP & receipt)" required>
+            </div>
+            <div class="form-row">
+              <textarea id="cust-address" class="form-input" placeholder="Physical Delivery Address" rows="2" required></textarea>
+            </div>
           </div>
 
           <div class="form-section">
-            <h3>2. Payment Method</h3>
+            <h4 class="form-heading">2. Payment Method</h4>
             <div class="payment-tabs">
-              <button type="button" class="tab-btn active" onclick="selectPayMethod('card')">Credit / Debit Card</button>
+              <button type="button" class="tab-btn active" onclick="selectPayMethod('card')">Credit/Debit Card</button>
               <button type="button" class="tab-btn" onclick="selectPayMethod('eft')">Instant EFT</button>
             </div>
 
-            <div id="card-fields">
-              <div class="card-input-wrapper">
-                <input type="text" id="card-num" placeholder="Card Number (e.g. 4xxx / 5xxx)" maxlength="19" required>
-                <span id="card-brand" class="card-brand">CARD</span>
+            <div id="card-fields" class="payment-fields">
+              <div class="form-row" style="position: relative;">
+                <input type="text" id="card-num" class="form-input" placeholder="Card Number (4XXX or 5XXX)" maxlength="19">
+                <span id="card-brand" class="card-brand-badge">CARD</span>
               </div>
-              <div class="form-row">
-                <input type="text" id="card-exp" placeholder="MM/YY" maxlength="5" required>
-                <input type="text" id="card-cvv" placeholder="CVV" maxlength="3" required>
+              <div class="form-row grid-2">
+                <input type="text" id="card-exp" class="form-input" placeholder="MM / YY" maxlength="5">
+                <input type="password" id="card-cvv" class="form-input" placeholder="CVV" maxlength="4">
               </div>
             </div>
 
-            <div id="eft-fields" style="display: none;">
-              <p class="eft-instruction">Select your bank for a simulated Instant EFT authorization:</p>
-              <select id="bank-select" class="form-select">
-                <option value="FNB">FNB / RMB</option>
-                <option value="Capitec">Capitec Bank</option>
-                <option value="StandardBank">Standard Bank</option>
-                <option value="Nedbank">Nedbank</option>
-                <option value="Absa">Absa</option>
-              </select>
+            <div id="eft-fields" class="payment-fields" style="display: none;">
+              <p class="eft-notice" style="font-size: 13px; color: #64748b; margin-bottom: 12px;">
+                Select your bank to proceed with Instant EFT authentication:
+              </p>
+              
+              <div class="bank-grid">
+                <button type="button" class="bank-card active" onclick="selectBank(this, 'Capitec Bank')">
+                  <span class="bank-dot capitec-dot"></span>
+                  <span class="bank-name">Capitec</span>
+                </button>
+                <button type="button" class="bank-card" onclick="selectBank(this, 'FNB')">
+                  <span class="bank-dot fnb-dot"></span>
+                  <span class="bank-name">FNB</span>
+                </button>
+                <button type="button" class="bank-card" onclick="selectBank(this, 'Standard Bank')">
+                  <span class="bank-dot standard-dot"></span>
+                  <span class="bank-name">Standard Bank</span>
+                </button>
+                <button type="button" class="bank-card" onclick="selectBank(this, 'Absa')">
+                  <span class="bank-dot absa-dot"></span>
+                  <span class="bank-name">Absa</span>
+                </button>
+                <button type="button" class="bank-card" onclick="selectBank(this, 'Nedbank')">
+                  <span class="bank-dot nedbank-dot"></span>
+                  <span class="bank-name">Nedbank</span>
+                </button>
+                <button type="button" class="bank-card" onclick="selectBank(this, 'TymeBank')">
+                  <span class="bank-dot tyme-dot"></span>
+                  <span class="bank-name">TymeBank</span>
+                </button>
+              </div>
+              <input type="hidden" id="selected-bank" value="Capitec Bank">
             </div>
           </div>
 
-          <div class="checkout-summary-box">
-            <div class="summary-line">
-              <span>Amount Due (incl. 15% VAT):</span>
-              <strong id="modal-total-pay">R 0.00</strong>
-            </div>
-          </div>
-
-          <button type="submit" id="pay-submit-btn" class="pay-btn">
-            Pay Now
-          </button>
+          <button type="submit" class="btn-primary-action">Request Security OTP</button>
         </form>
       </div>
 
-      <!-- OTP Authentication View -->
-      <div id="otp-view" class="status-view" style="display: none; text-align: center;">
-        <div style="font-size: 2.2rem; margin-bottom: 0.5rem;">🔐</div>
-        <h3 style="margin-bottom: 0.4rem; color: #0f172a;">Verify Transaction</h3>
-        <p style="font-size: 0.9rem; color: #64748b; margin-bottom: 1.25rem;">
-          We sent a 6-digit verification code to <br><strong id="otp-target-email"></strong>
-        </p>
+      <!-- View 2: OTP Verification -->
+      <div id="otp-view" style="display: none; text-align: center; padding: 15px 0;">
+        <div class="security-badge-icon">🔒</div>
+        <h3 class="modal-title">Two-Factor Authorization</h3>
+        <p class="modal-sub">We dispatched a 6-digit PIN to <strong id="otp-target-email"></strong>. Enter it to finalize your payment.</p>
 
-        <div style="margin-bottom: 1rem;">
-          <input 
-            type="text" 
-            id="otp-input" 
-            placeholder="Enter 6-digit PIN" 
-            maxlength="6" 
-            style="letter-spacing: 0.35em; font-size: 1.3rem; font-weight: bold; text-align: center; width: 220px; padding: 0.6rem; border: 2px solid #cbd5e1; border-radius: 6px; outline: none;"
-          >
-          <p id="otp-error" style="color: #ef4444; font-size: 0.85rem; margin-top: 0.5rem; display: none;">Invalid PIN. Please try again.</p>
+        <div style="margin: 20px 0;">
+          <input type="text" id="otp-input" class="otp-box-input" maxlength="6" placeholder="••••••" autofocus>
+          <div id="otp-error" class="otp-error-msg" style="display: none;">Invalid OTP code. Please verify and try again.</div>
         </div>
 
-        <button type="button" onclick="verifyOtpAndPay()" class="pay-btn" style="max-width: 240px; margin: 0 auto; display: block;">
-          Confirm & Pay
-        </button>
+        <button type="button" class="btn-primary-action" onclick="verifyOtpAndPay()">Authorize & Confirm Order</button>
       </div>
 
-      <!-- 2. Processing State -->
-      <div id="processing-view" class="status-view" style="display: none;">
-        <div class="spinner"></div>
-        <p>Connecting to payment gateway...</p>
+      <!-- View 3: Processing Animation -->
+      <div id="processing-view" style="display: none; text-align: center; padding: 40px 20px;">
+        <div class="pulsing-spinner"></div>
+        <h3 style="margin-top: 20px; font-family: 'Outfit', sans-serif;">Verifying with Banking Network...</h3>
+        <p style="color: #64748b; font-size: 14px;">Recording atomic order in MySQL database.</p>
       </div>
 
-      <!-- 3. Receipt / Order Success View -->
-      <div id="success-view" class="status-view" style="display: none;">
-        <div class="success-icon">✓</div>
-        <h2>Order Confirmed!</h2>
-        <p class="receipt-sub">Thank you for your purchase with Binary Tech Hub.</p>
-        
-        <div class="receipt-details">
-          <p><strong>Order Ref:</strong> <span id="receipt-ref"></span></p>
-          <p><strong>Billed To:</strong> <span id="receipt-name"></span></p>
-          <p><strong>Total Paid:</strong> <span id="receipt-amount"></span></p>
-          <p><strong>Status:</strong> <span class="badge-success">Payment Approved</span></p>
+      <!-- View 4: Success Receipt -->
+      <div id="success-view" style="display: none; text-align: center; padding: 25px 10px;">
+        <div class="success-checkmark-icon">✓</div>
+        <h3 class="modal-title" style="color: #10b981;">Order Confirmed!</h3>
+        <p class="modal-sub">Your payment has been processed and your invoice emailed.</p>
+
+        <div class="receipt-summary-box">
+          <div class="receipt-line"><span>Order Reference:</span> <strong id="receipt-ref"></strong></div>
+          <div class="receipt-line"><span>Customer:</span> <strong id="receipt-name"></strong></div>
+          <div class="receipt-line"><span>Total Paid:</span> <strong id="receipt-amount" style="color: #4f46e5;"></strong></div>
         </div>
 
-        <button type="button" onclick="dismissCheckout()" class="pay-btn" style="margin-top: 1.5rem;">Done</button>
+        <button type="button" class="btn-primary-action" onclick="dismissCheckout()">Continue Shopping</button>
       </div>
-
     </div>
   </div>
 
-  <!-- Third-party EmailJS SDK -->
-  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <!-- Product Customizer Modal (Color & Storage Picker) -->
+  <div id="customizer-overlay" class="modal-overlay">
+    <div class="customizer-card">
+      <button type="button" class="modal-close-icon" onclick="closeCustomizer()">&times;</button>
+      <div class="customizer-grid">
+        <img id="cust-modal-img" src="" alt="Product Preview" class="customizer-img">
+        <div class="customizer-details">
+          <span id="cust-modal-category" class="customizer-tag"></span>
+          <h3 id="cust-modal-title"></h3>
+          <div id="cust-modal-price" class="customizer-price"></div>
+          <p id="cust-modal-specs" class="customizer-desc"></p>
 
-  <!-- Project Scripts (Only loaded once) -->
+          <div id="cust-color-group" class="variant-group">
+            <label class="variant-label">Select Color:</label>
+            <div id="cust-color-options" class="pill-container"></div>
+          </div>
+
+          <div id="cust-storage-group" class="variant-group">
+            <label class="variant-label">Select Storage / Option:</label>
+            <div id="cust-storage-options" class="pill-container"></div>
+          </div>
+
+          <button id="cust-add-btn" class="customizer-confirm-btn" onclick="confirmCustomizedAddToCart()">
+            Add to Cart
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-brand">
+        <div class="logo">
+          <span class="logo-icon">⚡</span>
+          <span class="logo-text">Binary<span class="logo-accent">Tech</span>Hub</span>
+        </div>
+        <p>Enterprise hardware distribution & e-commerce demonstration platform.</p>
+      </div>
+      <div class="footer-copy">
+        &copy; 2026 Binary Tech Hub Industries.
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
   <script src="js/products.js"></script>
   <script src="js/app.js"></script>
 </body>

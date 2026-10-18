@@ -1,10 +1,104 @@
 const API_URL = 'http://localhost:5185/api/products';
-const ADMIN_KEY = 'BTH-Secret-Admin-2026';
+const BACKEND_ADMIN_KEY = 'BTH-Secret-Admin-2026'; // Passed in X-Admin-Key header
 
-document.addEventListener('DOMContentLoaded', loadInventory);
+// 5 FIXED GROUP MEMBER CREDENTIALS
+const AUTHORIZED_ADMINS = [
+    { username: '56087004', password: 'GeraldM@55', displayName: 'Gerald M' },
+    { username: '51690489', password: 'TshiamoM@79', displayName: 'Tshiamo M' },
+    { username: '53536495', password: 'OratileM@67', displayName: 'Oratile M' },
+    { username: '50320777', password: 'MosaC@69', displayName: 'Mosa C' },
+    { username: '52711943', password: 'AmogelangM@08', displayName: 'Amogelang M' }
+];
+
+document.addEventListener('DOMContentLoaded', checkAuth);
 
 /**
- * Fetch all products from the ASP.NET Core API
+ * Check whether a valid team member is logged in for this browser session
+ */
+function checkAuth() {
+    const activeUser = sessionStorage.getItem('bth_admin_user');
+    const loginView = document.getElementById('login-container');
+    const dashboardView = document.getElementById('admin-dashboard');
+
+    if (activeUser) {
+        if (loginView) loginView.style.display = 'none';
+        if (dashboardView) dashboardView.style.display = 'block';
+
+        // Update header badge with current member name
+        const userBadge = document.getElementById('admin-current-user');
+        if (userBadge) {
+            userBadge.textContent = `Logged in as: ${activeUser}`;
+        }
+
+        loadInventory();
+    } else {
+        if (loginView) loginView.style.display = 'block';
+        if (dashboardView) dashboardView.style.display = 'none';
+    }
+}
+
+/**
+ * Handle team member login
+ */
+function handleLogin(event) {
+    event.preventDefault();
+
+    const usernameInput = document.getElementById('admin-user').value.trim();
+    const passwordInput = document.getElementById('admin-key').value.trim();
+    const errorBox = document.getElementById('login-error-msg');
+
+    // Authenticate against the 5 authorized group credentials
+    const matchedAdmin = AUTHORIZED_ADMINS.find(admin => 
+        admin.username === usernameInput && admin.password === passwordInput
+    );
+
+    if (matchedAdmin) {
+        sessionStorage.setItem('bth_admin_user', matchedAdmin.displayName);
+        sessionStorage.setItem('bth_admin_token', BACKEND_ADMIN_KEY);
+
+        errorBox.style.display = 'none';
+        checkAuth();
+    } else {
+        errorBox.textContent = 'Access Denied: Invalid username or password.';
+        errorBox.style.display = 'block';
+    }
+}
+
+/**
+ * Sign out and clear active session
+ */
+/**
+ * Sign out, wipe form inputs, and clear active session
+ */
+function logoutAdmin() {
+    // 1. Remove tokens from session storage
+    sessionStorage.removeItem('bth_admin_user');
+    sessionStorage.removeItem('bth_admin_token');
+
+    // 2. Clear input fields immediately
+    const loginForm = document.getElementById('admin-login-form');
+    if (loginForm) {
+        loginForm.reset(); // Resets all fields in the form
+    }
+
+    const userInput = document.getElementById('admin-user');
+    const passInput = document.getElementById('admin-key');
+    if (userInput) userInput.value = '';
+    if (passInput) passInput.value = '';
+
+    // 3. Clear any leftover error messages
+    const errorBox = document.getElementById('login-error-msg');
+    if (errorBox) {
+        errorBox.textContent = '';
+        errorBox.style.display = 'none';
+    }
+
+    // 4. Return to the login view
+    checkAuth();
+}
+
+/**
+ * Fetch catalog products from ASP.NET Core API
  */
 async function loadInventory() {
     const tbody = document.getElementById('admin-product-rows');
@@ -23,8 +117,8 @@ async function loadInventory() {
         tbody.innerHTML = `
             <tr>
                 <td colspan="6" style="color: #e53e3e; text-align: center; padding: 24px;">
-                    <strong>Failed to connect to the backend API.</strong><br>
-                    Make sure <code>dotnet run</code> is active in your terminal on <code>http://localhost:5185</code>.
+                    <strong>Failed to connect to backend API.</strong><br>
+                    Make sure <code>dotnet run</code> is active on <code>http://localhost:5185</code>.
                 </td>
             </tr>
         `;
@@ -32,7 +126,7 @@ async function loadInventory() {
 }
 
 /**
- * Render catalog items into the management table
+ * Render items into the inventory table
  */
 function renderTable(products) {
     const tbody = document.getElementById('admin-product-rows');
@@ -76,15 +170,22 @@ function renderTable(products) {
 }
 
 /**
- * Send PATCH request to API to update inventory in MySQL
+ * Send PATCH request to API using backend key
  */
 async function updateStock(productId) {
     const inputField = document.getElementById(`input-${productId}`);
     const actionButton = document.getElementById(`btn-${productId}`);
     const newStockValue = parseInt(inputField.value, 10);
+    const adminKey = sessionStorage.getItem('bth_admin_token');
 
     if (isNaN(newStockValue) || newStockValue < 0) {
         alert('Please enter a valid stock quantity of 0 or greater.');
+        return;
+    }
+
+    if (!adminKey) {
+        alert('Session expired. Please sign in again.');
+        logoutAdmin();
         return;
     }
 
@@ -96,7 +197,7 @@ async function updateStock(productId) {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
-                'X-Admin-Key': ADMIN_KEY
+                'X-Admin-Key': adminKey
             },
             body: JSON.stringify({
                 newStock: newStockValue
@@ -106,7 +207,6 @@ async function updateStock(productId) {
         const result = await response.json();
 
         if (response.ok) {
-            // Update the live stock badge display
             const stockCell = document.getElementById(`stock-cell-${productId}`);
             const isLowStock = newStockValue <= 5;
             stockCell.innerHTML = `
@@ -117,7 +217,7 @@ async function updateStock(productId) {
 
             alert(`Success: ${productId} stock updated to ${newStockValue} in MySQL.`);
         } else {
-            alert(`Update rejected: ${result.message || 'Unknown error occurred.'}`);
+            alert(`Update rejected: ${result.message || 'Unauthorized or invalid request.'}`);
         }
     } catch (error) {
         console.error('Error dispatching PATCH request:', error);

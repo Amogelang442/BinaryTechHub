@@ -20,9 +20,9 @@ public class OrdersController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateOrder([FromBody] CreateOrderDto dto)
     {
-        if (dto == null || dto.Items.Count == 0)
+        if (dto == null || dto.Items == null || dto.Items.Count == 0)
         {
-            return BadRequest("Order must contain at least one item.");
+            return BadRequest(new { message = "Order must contain at least one item." });
         }
 
         // Database transaction to keep stock and order items atomic
@@ -36,12 +36,17 @@ public class OrdersController : ControllerBase
                 var product = await _context.Products.FindAsync(item.ProductId);
                 if (product == null)
                 {
-                    return NotFound($"Product with ID '{item.ProductId}' not found.");
+                    await transaction.RollbackAsync();
+                    return NotFound(new { message = $"Product with ID '{item.ProductId}' not found." });
                 }
 
                 if (product.Stock < item.Quantity)
                 {
-                    return BadRequest($"Insufficient stock for product '{product.Name}'. Available: {product.Stock}");
+                    await transaction.RollbackAsync();
+                    return BadRequest(new 
+                    { 
+                        message = $"Insufficient stock for '{product.Name}'. Available: {product.Stock}, Requested: {item.Quantity}." 
+                    });
                 }
 
                 // Decrement stock
@@ -85,7 +90,7 @@ public class OrdersController : ControllerBase
         catch (Exception ex)
         {
             await transaction.RollbackAsync();
-            return StatusCode(500, $"Internal server error: {ex.Message}");
+            return StatusCode(500, new { message = "Internal server error occurred while processing order.", error = ex.Message });
         }
     }
 }
