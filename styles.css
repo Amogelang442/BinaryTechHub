@@ -1204,56 +1204,58 @@ img {
   }
 
   /* Horizontal touch scrolling for category buttons */
-  /* --- HORIZONTAL CATEGORY SCROLLING FIX --- */
+/* --- HORIZONTAL CATEGORY SCROLL TRACK --- */
 .category-pills {
   display: flex !important;
   flex-direction: row !important;
-  flex-wrap: nowrap !important; /* Forces all pills to stay on one single row */
-  overflow-x: auto !important; /* Enables horizontal swipe scrolling */
+  flex-wrap: nowrap !important;
+  justify-content: flex-start !important; /* CRITICAL: Never use 'center' here! 'flex-start' enables full left-to-right scrolling */
+  align-items: center !important;
+  overflow-x: auto !important;
   overflow-y: hidden !important;
-  -webkit-overflow-scrolling: touch !important; /* Smooth momentum scrolling on iOS/Android */
+  -webkit-overflow-scrolling: touch !important; /* Smooth momentum scrolling on mobile */
   gap: 10px !important;
-  padding: 12px 16px !important; /* Generates breathing space on the left and right */
-  margin: 15px 0 25px 0 !important;
+  padding: 12px 16px !important; /* Adds natural margins at both ends of the swipe */
+  margin: 16px 0 24px 0 !important;
   width: 100% !important;
   max-width: 100% !important;
-  scroll-behavior: smooth !important;
-  
-  /* Hide scrollbars but keep swipe active */
-  scrollbar-width: none !important; /* Firefox */
-  -ms-overflow-style: none !important; /* IE 10+ */
+  box-sizing: border-box !important;
+  scrollbar-width: none !important; /* Hide scrollbar Firefox */
+  -ms-overflow-style: none !important; /* Hide scrollbar IE/Edge */
 }
 
-/* Chrome, Safari, and Opera */
 .category-pills::-webkit-scrollbar {
-  display: none !important;
+  display: none !important; /* Hide scrollbar Chrome/Safari */
 }
 
-/* Exact inner pill adjustment */
-.category-pills button, 
-.category-pills .category-btn, 
+/* --- BUTTON PILL STYLING --- */
+.category-pills button,
+.category-pills .category-btn,
 .category-pills .cat-pill {
-  flex-shrink: 0 !important; /* Crucial: Prevents browser from squeezing pills narrower than natural width */
-  white-space: nowrap !important; /* Forces the text to stay on a single line - no messy wrapping! */
+  flex-shrink: 0 !important; /* Stops the browser from squeezing pills narrower */
+  white-space: nowrap !important; /* Stops words from wrapping onto two lines */
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  padding: 10px 18px !important; /* Generates consistent inner button area */
+  padding: 8px 18px !important;
   font-size: 14px !important;
   font-weight: 600 !important;
-  border-radius: 50px !important; /* Pill shape */
+  border-radius: 9999px !important; /* Clean rounded pill */
   border: 1px solid #e2e8f0 !important;
   background: #ffffff !important;
   color: #4a5568 !important;
   cursor: pointer !important;
-  transition: all 0.2s ease !important;
+  user-select: none !important;
+  -webkit-tap-highlight-color: transparent !important;
 }
 
-/* Optional touch padding fix for the edge items */
-.category-pills::before,
-.category-pills::after {
-  content: '' !important;
-  padding-left: 4px !important; /* Give extra scroll track bumper at natural start/end */
+/* Active category pill highlight */
+.category-pills button.active,
+.category-pills .category-btn.active,
+.category-pills .cat-pill.active {
+  background: #4f46e5 !important;
+  color: #ffffff !important;
+  border-color: #4f46e5 !important;
 }
 
   /* --- PRODUCT GRID (1 column centered) --- */
