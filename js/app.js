@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const EMAILJS_SERVICE_ID = "service_5eysruj";
   const EMAILJS_RECEIPT_TEMPLATE_ID = "template_4orua3g"; 
   const EMAILJS_OTP_TEMPLATE_ID = "template_i7k3bpw"; 
-  const API_BASE_URL = "https://binarytechhub-api.onrender.com/";
+  const API_BASE_URL = "https://binarytechhub-api.onrender.com/api";
 
   // 2. DOM Elements
   const categoryContainer = document.getElementById("category-buttons");
@@ -94,7 +94,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     currentActiveCategoryId = categoryId;
 
-    // Reset search input value if category button is clicked
     const searchInput = document.getElementById("catalog-search-input");
     if (searchInput && btnElement) {
       searchInput.value = "";
@@ -236,7 +235,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const hasColors = product.colors && product.colors.length > 0;
     const hasStorages = product.storages && product.storages.length > 0;
 
-    // Open customizer modal if variants exist
     if (hasColors || hasStorages) {
       window.openCustomizer(product);
     } else {
@@ -252,7 +250,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const displayName = `${product.name}${variantLabel}`;
 
-    // Total existing units of this base product already in cart
     const currentTotalInCart = cart
       .filter(item => item.id === product.id)
       .reduce((sum, item) => sum + item.quantity, 0);
@@ -262,7 +259,6 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Match exact item by both ID and customized options
     const existingIndex = cart.findIndex(item => item.id === product.id && item.name === displayName);
 
     if (existingIndex > -1) {
@@ -270,8 +266,8 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       if (product.stock <= 0) return;
       cart.push({
-        id: product.id,       // Preserves exact MySQL primary key
-        name: displayName,    // Displays variant label in cart & receipt
+        id: product.id,       
+        name: displayName,    
         price: product.price,
         image: product.image,
         quantity: 1
@@ -342,7 +338,6 @@ document.addEventListener("DOMContentLoaded", () => {
           hasStockConflict = true;
         }
 
-        // Escape single quotes for inline JS calls
         const escapedName = item.name.replace(/'/g, "\\'");
 
         return `
@@ -571,7 +566,7 @@ document.addEventListener("DOMContentLoaded", () => {
         paymentMethod: paymentLabel,
         totalAmount: parseFloat(totalAmount),
         items: cartSnapshot.map(i => ({
-          productId: i.id, // Primary key intact
+          productId: i.id,
           quantity: i.quantity,
           unitPrice: i.price
         }))
@@ -583,12 +578,17 @@ document.addEventListener("DOMContentLoaded", () => {
         body: JSON.stringify(orderPayload)
       });
 
-      const result = await apiResponse.json();
+      // Guard against non-JSON error responses (like 404 or 500 HTML pages from Render)
+      let result = {};
+      const contentType = apiResponse.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        result = await apiResponse.json();
+      }
 
       if (!apiResponse.ok) {
         if (processingView) processingView.style.display = "none";
         closeCheckoutModal();
-        alert(`Order Rejected: ${result.message || "Insufficient inventory or error processing order."}`);
+        alert(`Order Rejected: ${result.message || `Server responded with status ${apiResponse.status}`}`);
         return;
       }
 

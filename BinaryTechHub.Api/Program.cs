@@ -3,15 +3,14 @@ using BinaryTechHub.Api.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Database Connection String (Falls back gracefully if null)
+// 1. Connection string
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' was not found.");
 
-// 2. MySQL DbContext via Pomelo
-// We specify a fixed ServerVersion (e.g., MySQL 8.0) instead of AutoDetect to prevent cold-boot crashes on cloud hosts
+// 2. Database context
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(
-        connectionString, 
+        connectionString,
         new MySqlServerVersion(new Version(8, 0, 36)),
         mySqlOptions => mySqlOptions.EnableRetryOnFailure(
             maxRetryCount: 5,
@@ -21,9 +20,16 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     )
 );
 
-// 3. CORS Policy so both localhost and live Vercel domains can query the API
+// 3. CORS Configuration
 builder.Services.AddCors(options =>
 {
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+
     options.AddPolicy("AllowAll", policy =>
     {
         policy.AllowAnyOrigin()
@@ -36,10 +42,10 @@ builder.Services.AddControllers();
 
 var app = builder.Build();
 
-// 4. Middleware Pipeline Execution Order
+// 4. Middleware Order
 app.UseRouting();
 
-// CORS must be executed right after routing and before Auth/Endpoints
+app.UseCors();
 app.UseCors("AllowAll");
 
 app.UseAuthorization();
