@@ -20,17 +20,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     )
 );
 
-// 3. CORS Configuration
+// 3. CORS
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
-    {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
-    });
-
-    options.AddPolicy("AllowAll", policy =>
     {
         policy.AllowAnyOrigin()
               .AllowAnyMethod()
@@ -42,11 +35,17 @@ builder.Services.AddControllers();
 
 var app = builder.Build();
 
-// 4. Middleware Order
+// CRITICAL: CORS must run first before DeveloperExceptionPage, Routing, or Controllers
+app.UseCors();
+
+if (app.Environment.IsDevelopment() || true) // Enable detailed errors on cloud during setup
+{
+    app.UseDeveloperExceptionPage();
+}
+
 app.UseRouting();
 
-app.UseCors();
-app.UseCors("AllowAll");
+app.UseCors(); // Kept for route endpoint matching
 
 app.UseAuthorization();
 
