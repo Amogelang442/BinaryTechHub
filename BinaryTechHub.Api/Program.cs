@@ -51,4 +51,10 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+//AUTO-CREATE MISSING TABLES IN AIVEN MYSQL
+using (var scope = app.Services.CreareScope()) {
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.EnsureCreated();
+}
+
 app.Run();
