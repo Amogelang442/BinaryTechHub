@@ -20,7 +20,7 @@ var categories = [
   { id: 11, name: "Accessories and Other Electronics", slug: "accessories-and-other-electronics" }
 ];
 
-// Seeded static fallback catalog (used if API is offline)
+// Seeded static fallback catalog (used if API is offline or as metadata template)
 var fallbackProducts = [
   // 1. Smartphones
   {
@@ -31,7 +31,9 @@ var fallbackProducts = [
     price: 27999.00,
     stock: 12,
     specs: "256GB, A20 Pro chip, ProMotion OLED display",
-    image: "images/iphone-18-pro.webp"
+    image: "images/iphone-18-pro.webp",
+    colors: ["Space Black", "Natural Titanium", "Silver", "Desert Titanium"],
+    storages: ["256GB", "512GB", "1TB"]
   },
   {
     id: "SP-002",
@@ -41,7 +43,9 @@ var fallbackProducts = [
     price: 31999.00,
     stock: 10,
     specs: "512GB, Periscope telephoto, Titanium frame",
-    image: "images/iphone-18-promax.webp"
+    image: "images/iphone-18-promax.webp",
+    colors: ["Space Black", "Natural Titanium", "Desert Titanium"],
+    storages: ["512GB", "1TB"]
   },
   {
     id: "SP-003",
@@ -51,7 +55,9 @@ var fallbackProducts = [
     price: 21499.00,
     stock: 15,
     specs: "256GB, Dynamic AMOLED 2X, Snapdragon Gen 5",
-    image: "images/galaxy-s26.jpg"
+    image: "images/galaxy-s26.jpg",
+    colors: ["Onyx Black", "Marble Gray", "Cobalt Violet", "Amber Yellow"],
+    storages: ["128GB", "256GB"]
   },
   {
     id: "SP-004",
@@ -61,7 +67,9 @@ var fallbackProducts = [
     price: 24999.00,
     stock: 12,
     specs: "512GB, 4900mAh battery, 45W fast charge",
-    image: "images/galaxy-s26-plus.jpg"
+    image: "images/galaxy-s26-plus.jpg",
+    colors: ["Onyx Black", "Cobalt Violet", "Marble Gray"],
+    storages: ["256GB", "512GB"]
   },
   {
     id: "SP-005",
@@ -71,7 +79,9 @@ var fallbackProducts = [
     price: 30499.00,
     stock: 8,
     specs: "512GB, Embedded S-Pen, 200MP Quad Camera",
-    image: "images/galaxy-s26-ultra.jpg"
+    image: "images/galaxy-s26-ultra.jpg",
+    colors: ["Titanium Black", "Titanium Gray", "Titanium Violet", "Titanium Yellow"],
+    storages: ["256GB", "512GB", "1TB"]
   },
   {
     id: "SP-006",
@@ -81,7 +91,9 @@ var fallbackProducts = [
     price: 15999.00,
     stock: 20,
     specs: "128GB, Flagship-tier camera, 120Hz display",
-    image: "images/galaxy-s26-fe.avif"
+    image: "images/galaxy-s26-fe.avif",
+    colors: ["Mint", "Graphite", "Lavender", "Cream"],
+    storages: ["128GB", "256GB"]
   },
   {
     id: "SP-007",
@@ -91,7 +103,9 @@ var fallbackProducts = [
     price: 18499.00,
     stock: 14,
     specs: "128GB, Tensor G6 chip, Next-gen Google AI",
-    image: "images/pixel-11.webp"
+    image: "images/pixel-11.webp",
+    colors: ["Obsidian", "Porcelain", "Hazel", "Rose"],
+    storages: ["128GB", "256GB"]
   },
   {
     id: "SP-008",
@@ -101,7 +115,9 @@ var fallbackProducts = [
     price: 23999.00,
     stock: 9,
     specs: "256GB, Super Actua display, Pro camera controls",
-    image: "images/pixel-11-pro.webp"
+    image: "images/pixel-11-pro.webp",
+    colors: ["Obsidian", "Porcelain", "Bay"],
+    storages: ["128GB", "256GB", "512GB"]
   },
   {
     id: "SP-009",
@@ -111,7 +127,9 @@ var fallbackProducts = [
     price: 16999.00,
     stock: 16,
     specs: "256GB, Leica optical lens, 90W HyperCharge",
-    image: "images/xiaomi-17.webp"
+    image: "images/xiaomi-17.webp",
+    colors: ["Black", "White", "Jade Green"],
+    storages: ["256GB", "512GB"]
   },
   {
     id: "SP-010",
@@ -121,7 +139,9 @@ var fallbackProducts = [
     price: 26499.00,
     stock: 7,
     specs: "512GB, 1-inch sensor, Variable aperture",
-    image: "images/xiaomi-17-ultra.jpeg"
+    image: "images/xiaomi-17-ultra.jpeg",
+    colors: ["Titanium Gray", "Black Vegan Leather"],
+    storages: ["512GB", "1TB"]
   },
   {
     id: "SP-011",
@@ -131,7 +151,9 @@ var fallbackProducts = [
     price: 11499.00,
     stock: 18,
     specs: "256GB, 60MP portrait front cam, SuperCharge",
-    image: "images/huawei-nova-14.jpeg"
+    image: "images/huawei-nova-14.jpeg",
+    colors: ["Color No. 12", "Obsidian Black", "Starry Blue"],
+    storages: ["256GB", "512GB"]
   },
 
   // 2. Laptops and Computers
@@ -143,7 +165,9 @@ var fallbackProducts = [
     price: 17999.00,
     stock: 14,
     specs: "13-inch, Apple Silicon, Fanless ultra-portable design",
-    image: "images/macbook-neo.jpg"
+    image: "images/macbook-neo.jpg",
+    colors: ["Midnight", "Starlight", "Silver"],
+    storages: ["256GB SSD", "512GB SSD"]
   },
   {
     id: "LC-002",
@@ -153,7 +177,9 @@ var fallbackProducts = [
     price: 22999.00,
     stock: 15,
     specs: "16GB RAM, 512GB SSD, Liquid Retina display",
-    image: "images/macbook_air_m5.png"
+    image: "images/macbook_air_m5.png",
+    colors: ["Space Gray", "Silver", "Midnight", "Starlight"],
+    storages: ["512GB SSD", "1TB SSD"]
   },
   {
     id: "LC-003",
@@ -163,7 +189,9 @@ var fallbackProducts = [
     price: 38999.00,
     stock: 8,
     specs: "24GB Unified Memory, 1TB SSD, 120Hz XDR",
-    image: "images/macbook-pro-m5-pro.webp"
+    image: "images/macbook-pro-m5-pro.webp",
+    colors: ["Space Black", "Silver"],
+    storages: ["1TB SSD", "2TB SSD"]
   },
   {
     id: "LC-004",
@@ -173,7 +201,9 @@ var fallbackProducts = [
     price: 54999.00,
     stock: 5,
     specs: "36GB Unified Memory, 1TB SSD, Extreme GPU power",
-    image: "images/macbook-pro-m5-max.png"
+    image: "images/macbook-pro-m5-max.png",
+    colors: ["Space Black", "Silver"],
+    storages: ["1TB SSD", "2TB SSD", "4TB SSD"]
   },
   {
     id: "LC-005",
@@ -183,7 +213,9 @@ var fallbackProducts = [
     price: 34999.00,
     stock: 6,
     specs: "Dual 14-inch OLED touch displays, Intel Core Ultra 9",
-    image: "images/zenbook-duo-2026.jpg"
+    image: "images/zenbook-duo-2026.jpg",
+    colors: ["Inkwell Gray"],
+    storages: ["1TB SSD", "2TB SSD"]
   },
   {
     id: "LC-006",
@@ -193,7 +225,9 @@ var fallbackProducts = [
     price: 16999.00,
     stock: 11,
     specs: "8-inch 120Hz FHD, 32GB LPDDR5x, 80Wh battery",
-    image: "images/msi-claw-8.jpg"
+    image: "images/msi-claw-8.jpg",
+    colors: ["Matte Black"],
+    storages: ["512GB NVMe", "1TB NVMe"]
   },
   {
     id: "LC-007",
@@ -203,7 +237,9 @@ var fallbackProducts = [
     price: 13999.00,
     stock: 12,
     specs: "16GB Unified Memory, 512GB SSD, Ultra-compact desktop",
-    image: "images/mac-mini-m6.webp"
+    image: "images/mac-mini-m6.webp",
+    colors: ["Silver"],
+    storages: ["512GB SSD", "1TB SSD"]
   },
 
   // 3. Tablets
@@ -215,7 +251,9 @@ var fallbackProducts = [
     price: 14499.00,
     stock: 14,
     specs: "13-inch Liquid Retina, Apple Pencil Pro support",
-    image: "images/ipad-air-m4.jpg"
+    image: "images/ipad-air-m4.jpg",
+    colors: ["Space Gray", "Blue", "Purple", "Starlight"],
+    storages: ["128GB", "256GB", "512GB"]
   },
   {
     id: "TB-002",
@@ -225,7 +263,9 @@ var fallbackProducts = [
     price: 27999.00,
     stock: 7,
     specs: "256GB, Tandem OLED display, M4 architecture",
-    image: "images/ipad-pro-13.jpeg"
+    image: "images/ipad-pro-13.jpeg",
+    colors: ["Space Black", "Silver"],
+    storages: ["256GB", "512GB", "1TB"]
   },
   {
     id: "TB-003",
@@ -235,7 +275,9 @@ var fallbackProducts = [
     price: 26499.00,
     stock: 6,
     specs: "14.6-inch Dynamic AMOLED 2X, S-Pen included",
-    image: "images/tab-s12-ultra.avif"
+    image: "images/tab-s12-ultra.avif",
+    colors: ["Moonstone Gray", "Platinum Silver"],
+    storages: ["256GB", "512GB"]
   },
   {
     id: "TB-004",
@@ -245,7 +287,9 @@ var fallbackProducts = [
     price: 20999.00,
     stock: 9,
     specs: "12.4-inch 120Hz screen, 512GB storage, S-Pen",
-    image: "images/tab-s12-plus.webp"
+    image: "images/tab-s12-plus.webp",
+    colors: ["Moonstone Gray", "Platinum Silver"],
+    storages: ["256GB", "512GB"]
   },
   {
     id: "TB-005",
@@ -255,7 +299,9 @@ var fallbackProducts = [
     price: 11999.00,
     stock: 15,
     specs: "144Hz 3K display, Quad stereo speakers, Snapdragon",
-    image: "images/xiaomi-pad-9-pro.jpeg"
+    image: "images/xiaomi-pad-9-pro.jpeg",
+    colors: ["Black", "Blue", "Gray"],
+    storages: ["128GB", "256GB"]
   },
   {
     id: "TB-006",
@@ -265,7 +311,9 @@ var fallbackProducts = [
     price: 10499.00,
     stock: 12,
     specs: "7:5 ReadFit display ratio, 67W SUPERVOOC charging",
-    image: "images/oneplus-pad-3.jpg"
+    image: "images/oneplus-pad-3.jpg",
+    colors: ["Halo Green"],
+    storages: ["128GB", "256GB"]
   },
 
   // 4. Headphones and Earphones
@@ -277,7 +325,8 @@ var fallbackProducts = [
     price: 3999.00,
     stock: 30,
     specs: "Active Noise Cancellation, Adaptive Audio, USB-C case",
-    image: "images/airpods-5.jpg"
+    image: "images/airpods-5.jpg",
+    colors: ["White"]
   },
   {
     id: "AU-002",
@@ -287,7 +336,8 @@ var fallbackProducts = [
     price: 12499.00,
     stock: 10,
     specs: "Lossless USB-C audio, Personalized Spatial Audio",
-    image: "images/apple-airpods-max-2.png"
+    image: "images/apple-airpods-max-2.png",
+    colors: ["Midnight", "Starlight", "Blue", "Orange", "Purple"]
   },
   {
     id: "AU-003",
@@ -297,7 +347,8 @@ var fallbackProducts = [
     price: 8499.00,
     stock: 16,
     specs: "Industry-leading ANC, 30-hour battery, LDAC Hi-Res",
-    image: "images/sony-wh1000xm6.webp"
+    image: "images/sony-wh1000xm6.webp",
+    colors: ["Black", "Platinum Silver", "Midnight Blue"]
   },
   {
     id: "AU-004",
@@ -307,7 +358,8 @@ var fallbackProducts = [
     price: 3499.00,
     stock: 25,
     specs: "True Adaptive Noise Cancelling, 65-hour playtime",
-    image: "images/jbl-live-780nc.webp"
+    image: "images/jbl-live-780nc.webp",
+    colors: ["Black", "White", "Blue"]
   },
   {
     id: "AU-005",
@@ -317,7 +369,8 @@ var fallbackProducts = [
     price: 8999.00,
     stock: 12,
     specs: "Bose Immersive Audio, World-class active noise cancellation",
-    image: "images/bose-qc-ultra.jpg"
+    image: "images/bose-qc-ultra.jpg",
+    colors: ["Black", "White Smoke", "Sandstone"]
   },
   {
     id: "AU-006",
@@ -327,7 +380,8 @@ var fallbackProducts = [
     price: 3799.00,
     stock: 28,
     specs: "Blade design, 24-bit Hi-Fi sound, Galaxy AI noise control",
-    image: "images/galaxy-buds3-pro.jpg"
+    image: "images/galaxy-buds3-pro.jpg",
+    colors: ["Silver", "White"]
   },
 
   // 5. Smartwatches
@@ -339,7 +393,8 @@ var fallbackProducts = [
     price: 19999.00,
     stock: 8,
     specs: "49mm Titanium case, Dual-frequency GPS, 72h battery",
-    image: "images/apple-watch-ultra-3.jpg"
+    image: "images/apple-watch-ultra-3.jpg",
+    colors: ["Natural Titanium", "Black Titanium"]
   },
   {
     id: "WT-002",
@@ -349,7 +404,8 @@ var fallbackProducts = [
     price: 10499.00,
     stock: 18,
     specs: "Thinner design, Sleep apnea alerts, Fast charging",
-    image: "images/apple-watch-series-11.png"
+    image: "images/apple-watch-series-11.png",
+    colors: ["Jet Black", "Rose Gold", "Silver"]
   },
   {
     id: "WT-003",
@@ -359,7 +415,8 @@ var fallbackProducts = [
     price: 8999.00,
     stock: 15,
     specs: "Physical rotating bezel, BioActive Sensor, Sapphire crystal",
-    image: "images/galaxy-watch-8-classic.jpg"
+    image: "images/galaxy-watch-8-classic.jpg",
+    colors: ["Black", "Silver"]
   },
   {
     id: "WT-004",
@@ -369,7 +426,8 @@ var fallbackProducts = [
     price: 7499.00,
     stock: 14,
     specs: "Titanium alloy build, 14-day battery life, ECG analysis",
-    image: "images/huawei-gt6-pro.jpg"
+    image: "images/huawei-gt6-pro.jpg",
+    colors: ["Titanium Gray", "Black Fluoroelastomer"]
   },
   {
     id: "WT-005",
@@ -379,7 +437,8 @@ var fallbackProducts = [
     price: 15999.00,
     stock: 6,
     specs: "Zirconium liquid metal case, 100m diving certification",
-    image: "images/huawei-watch-ultimate-2.jpeg"
+    image: "images/huawei-watch-ultimate-2.jpeg",
+    colors: ["Voyage Blue", "Expedition Black"]
   },
   {
     id: "WT-006",
@@ -389,7 +448,8 @@ var fallbackProducts = [
     price: 7999.00,
     stock: 12,
     specs: "Actua display, Advanced Fitbit biometric tracking engine",
-    image: "images/pixel-watch-5.webp"
+    image: "images/pixel-watch-5.webp",
+    colors: ["Matte Black", "Polished Silver", "Champagne Gold"]
   },
 
   // 6. Speakers and Sound Systems
@@ -401,7 +461,8 @@ var fallbackProducts = [
     price: 6499.00,
     stock: 15,
     specs: "IP67 waterproof, AI sound boost, replaceable battery",
-    image: "images/jbl-xtreme-5.jpg"
+    image: "images/jbl-xtreme-5.jpg",
+    colors: ["Black", "Blue", "Squad Camo"]
   },
   {
     id: "SPK-002",
@@ -411,7 +472,8 @@ var fallbackProducts = [
     price: 899.00,
     stock: 40,
     specs: "Ultra-compact, 7h playtime, integrated carabiner strap",
-    image: "images/jbl-go-5.jpg"
+    image: "images/jbl-go-5.jpg",
+    colors: ["Black", "Blue", "Red", "Teal"]
   },
   {
     id: "SPK-003",
@@ -535,7 +597,8 @@ var fallbackProducts = [
     price: 8999.00,
     stock: 15,
     specs: "8-inch 1080p display, DLSS dock mode, Joy-Con 2 controllers",
-    image: "images/switch-2.webp"
+    image: "images/switch-2.webp",
+    colors: ["Neon Red/Blue", "Classic Gray"]
   },
   {
     id: "GM-004",
@@ -555,7 +618,8 @@ var fallbackProducts = [
     price: 2799.00,
     stock: 25,
     specs: "LIGHTFORCE hybrid optical switches, 60g ultralight, HERO 2",
-    image: "images/gpro-x-superlight-2.jpg"
+    image: "images/gpro-x-superlight-2.jpg",
+    colors: ["Black", "White", "Magenta"]
   },
 
   // 9. Cameras and Drones
@@ -731,7 +795,8 @@ var fallbackProducts = [
     price: 2199.00,
     stock: 20,
     specs: "Smart illumination, Perfect Stroke keys, multi-device pair",
-    image: "images/logitech-mx-keys-s.jpg"
+    image: "images/logitech-mx-keys-s.jpg",
+    colors: ["Graphite", "Pale Gray"]
   },
   {
     id: "AC-004",
@@ -791,7 +856,8 @@ var fallbackProducts = [
     price: 399.00,
     stock: 50,
     specs: "High-speed 600mm/s printing, 1.75mm diameter, tough",
-    image: "images/creality-pla-filament.jpg"
+    image: "images/creality-pla-filament.jpg",
+    colors: ["White", "Black", "Red", "Blue", "Gray"]
   },
   {
     id: "AC-010",
@@ -801,7 +867,8 @@ var fallbackProducts = [
     price: 449.00,
     stock: 45,
     specs: "Water-resistant, high impact resistance, smooth finish",
-    image: "images/bambu-petg-filament.jpg"
+    image: "images/bambu-petg-filament.jpg",
+    colors: ["Black", "White", "Transparent", "Orange"]
   },
   {
     id: "AC-011",
@@ -811,7 +878,8 @@ var fallbackProducts = [
     price: 429.00,
     stock: 35,
     specs: "High strength and heat resistance, modified ABS formula",
-    image: "images/esun-abs-filament.jpg"
+    image: "images/esun-abs-filament.jpg",
+    colors: ["Black", "Silver", "Fire Engine Red"]
   },
   {
     id: "AC-012",
@@ -821,7 +889,8 @@ var fallbackProducts = [
     price: 549.00,
     stock: 30,
     specs: "95A shore hardness, elastic, high-wear resistance",
-    image: "images/overture-tpu-filament.jpg"
+    image: "images/overture-tpu-filament.jpg",
+    colors: ["Black", "Clear", "High-Vis Yellow"]
   },
   {
     id: "AC-013",
@@ -831,7 +900,8 @@ var fallbackProducts = [
     price: 599.00,
     stock: 25,
     specs: "405nm LCD photopolymer resin, high precision, low odor",
-    image: "images/anycubic-uv-resin.jpg"
+    image: "images/anycubic-uv-resin.jpg",
+    colors: ["Grey", "Translucent Green", "Basic White"]
   },
   {
     id: "AC-014",
@@ -841,7 +911,8 @@ var fallbackProducts = [
     price: 699.00,
     stock: 20,
     specs: "Carbon fiber reinforced, high stiffness, matte finish",
-    image: "images/bambu-cf-filament.jpg"
+    image: "images/bambu-cf-filament.jpg",
+    colors: ["Matte Black", "Lava Rusty"]
   },
   {
     id: "AC-015",
@@ -851,7 +922,8 @@ var fallbackProducts = [
     price: 3999.00,
     stock: 18,
     specs: "USB 3.2 Gen 2x2, up to 2000MB/s read/write speed",
-    image: "images/samsung-t9-ssd.jpg"
+    image: "images/samsung-t9-ssd.jpg",
+    colors: ["Black"]
   },
   {
     id: "AC-016",
@@ -861,7 +933,8 @@ var fallbackProducts = [
     price: 3499.00,
     stock: 20,
     specs: "IP65 water/dust resistance, drop protection, 1050MB/s",
-    image: "images/sandisk-extreme-ssd.jpg"
+    image: "images/sandisk-extreme-ssd.jpg",
+    colors: ["Black with Orange Trim", "Sky Blue"]
   }
 ];
 
@@ -880,18 +953,26 @@ async function fetchProductsFromApi() {
 
     if (Array.isArray(liveData) && liveData.length > 0) {
       products = liveData.map(item => {
+        const pId = item.productId || item.id;
         const cat = categories.find(c => c.id === item.categoryId);
+        
+        // Find matching item in fallback array to preserve frontend variants (colors/storages)
+        const template = fallbackProducts.find(f => f.id === pId);
+
         return {
-          id: item.productId || item.id,
-          productId: item.productId || item.id,
+          id: pId,
+          productId: pId,
           categoryId: item.categoryId,
-          categoryName: cat ? cat.name : "Electronics",
+          categoryName: cat ? cat.name : (template ? template.categoryName : "Electronics"),
           name: item.name,
           price: Number(item.price),
           stock: item.stock,
-          specs: item.specs || "",
-          image: item.imageUrl || item.image || "images/placeholder.jpg",
-          imageUrl: item.imageUrl || item.image || "images/placeholder.jpg"
+          specs: item.specs || (template ? template.specs : ""),
+          image: item.imageUrl || item.image || (template ? template.image : "images/placeholder.jpg"),
+          imageUrl: item.imageUrl || item.image || (template ? template.image : "images/placeholder.jpg"),
+          // Preserve variant arrays:
+          colors: template && template.colors ? template.colors : undefined,
+          storages: template && template.storages ? template.storages : undefined
         };
       });
 

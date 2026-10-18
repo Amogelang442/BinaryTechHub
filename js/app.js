@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const EMAILJS_SERVICE_ID = "service_5eysruj";
   const EMAILJS_RECEIPT_TEMPLATE_ID = "template_4orua3g"; 
   const EMAILJS_OTP_TEMPLATE_ID = "template_i7k3bpw"; 
-  const API_BASE_URL = "http://localhost:5185/api";
+  const API_BASE_URL = "https://binarytechhub-api.onrender.com/";
 
   // 2. DOM Elements
   const categoryContainer = document.getElementById("category-buttons");
@@ -35,8 +35,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const cardNumInput = document.getElementById("card-num");
   const cardBrand = document.getElementById("card-brand");
 
+  // Customizer Modal Elements
+  const customizerOverlay = document.getElementById("customizer-overlay");
+
   let activePaymentMethod = "card";
+  let selectedBankName = "Capitec Bank";
   let currentActiveCategoryId = "all";
+
+  // Customizer State
+  let activeCustomizerProduct = null;
+  let selectedColor = null;
+  let selectedStorage = null;
 
   // 3. Cart State Management
   let cart = JSON.parse(localStorage.getItem("bth_cart")) || [];
@@ -44,6 +53,30 @@ document.addEventListener("DOMContentLoaded", () => {
   function saveCart() {
     localStorage.setItem("bth_cart", JSON.stringify(cart));
     updateCartDisplay();
+  }
+
+  // Helper to render product card HTML
+  function createProductCardHtml(item) {
+    const isOutOfStock = item.stock <= 0;
+    const hasVariants = (item.colors && item.colors.length > 0) || (item.storages && item.storages.length > 0);
+    const buttonText = isOutOfStock ? 'Out of Stock' : (hasVariants ? 'Customize & Buy' : 'Add to Cart');
+
+    return `
+      <div class="product-card" data-id="${item.id}">
+        <img src="${item.image}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'">
+        <div class="product-info">
+          <span class="product-category">${item.categoryName}</span>
+          <h3 class="product-title">${item.name}</h3>
+          <p class="product-specs">${item.specs}</p>
+          <div class="product-footer">
+            <span class="product-price">R ${Number(item.price).toFixed(2)}</span>
+            <button class="add-btn" onclick="addToCart('${item.id}')" ${isOutOfStock ? 'disabled style="opacity:0.5;cursor:not-allowed;"' : ''}>
+              ${buttonText}
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
   }
 
   // 4. Render Categories & Catalog
@@ -61,6 +94,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     currentActiveCategoryId = categoryId;
 
+    // Reset search input value if category button is clicked
+    const searchInput = document.getElementById("catalog-search-input");
+    if (searchInput && btnElement) {
+      searchInput.value = "";
+    }
+
     if (categoryContainer) {
       const buttons = categoryContainer.querySelectorAll(".filter-btn");
       buttons.forEach(btn => btn.classList.remove("active"));
@@ -73,42 +112,166 @@ document.addEventListener("DOMContentLoaded", () => {
       ? products 
       : products.filter(p => p.categoryId === categoryId);
 
-    productContainer.innerHTML = filtered.map(item => `
-      <div class="product-card" data-id="${item.id}">
-        <img src="${item.image}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'">
-        <div class="product-info">
-          <span class="product-category">${item.categoryName}</span>
-          <h3 class="product-title">${item.name}</h3>
-          <p class="product-specs">${item.specs}</p>
-          <div class="product-footer">
-            <span class="product-price">R ${Number(item.price).toFixed(2)}</span>
-            <button class="add-btn" onclick="addToCart('${item.id}')" ${item.stock <= 0 ? 'disabled style="opacity:0.5;cursor:not-allowed;"' : ''}>
-              ${item.stock <= 0 ? 'Out of Stock' : 'Add to Cart'}
-            </button>
-          </div>
+    productContainer.innerHTML = filtered.map(createProductCardHtml).join("");
+  };
+
+  // Live Catalog Search Filter
+  window.handleCatalogSearch = function(query) {
+    if (!productContainer || typeof products === "undefined") return;
+
+    const searchTerm = query.toLowerCase().trim();
+
+    if (!searchTerm) {
+      window.filterCatalog(currentActiveCategoryId);
+      return;
+    }
+
+    const matches = products.filter(p => {
+      const nameMatch = p.name.toLowerCase().includes(searchTerm);
+      const specsMatch = (p.specs || "").toLowerCase().includes(searchTerm);
+      const catMatch = (p.categoryName || "").toLowerCase().includes(searchTerm);
+      return nameMatch || specsMatch || catMatch;
+    });
+
+    if (matches.length === 0) {
+      productContainer.innerHTML = `
+        <div style="grid-column: 1 / -1; text-align: center; padding: 48px 20px; color: var(--muted, #64748b);">
+          <p style="font-size: 18px; font-weight: 700; color: var(--dark, #0f172a);">No products found matching "${query}"</p>
+          <p style="font-size: 14px; margin-top: 6px;">Try searching for a different brand, device name, or storage specification.</p>
         </div>
-      </div>
-    `).join("");
+      `;
+      return;
+    }
+
+    productContainer.innerHTML = matches.map(createProductCardHtml).join("");
   };
 
   // Event listener: Automatically refresh cards when API finishes fetching from MySQL
   window.addEventListener('bth:products-loaded', () => {
     const activeBtn = categoryContainer ? categoryContainer.querySelector(`.filter-btn.active`) : null;
     window.filterCatalog(currentActiveCategoryId, activeBtn);
+    updateCartDisplay();
   });
 
-  // 5. Cart Actions
+  // 5. Product Customizer Actions
+  window.openCustomizer = function(product) {
+    activeCustomizerProduct = product;
+    selectedColor = product.colors && product.colors.length > 0 ? product.colors[0] : null;
+    selectedStorage = product.storages && product.storages.length > 0 ? product.storages[0] : null;
+
+    const imgElem = document.getElementById("cust-modal-img");
+    const catElem = document.getElementById("cust-modal-category");
+    const titleElem = document.getElementById("cust-modal-title");
+    const priceElem = document.getElementById("cust-modal-price");
+    const specsElem = document.getElementById("cust-modal-specs");
+
+    if (imgElem) imgElem.src = product.image;
+    if (catElem) catElem.textContent = product.categoryName;
+    if (titleElem) titleElem.textContent = product.name;
+    if (priceElem) priceElem.textContent = `R ${Number(product.price).toFixed(2)}`;
+    if (specsElem) specsElem.textContent = product.specs;
+
+    // Render Color Options
+    const colorGroup = document.getElementById("cust-color-group");
+    const colorContainer = document.getElementById("cust-color-options");
+    if (product.colors && product.colors.length > 0) {
+      if (colorGroup) colorGroup.style.display = "block";
+      if (colorContainer) {
+        colorContainer.innerHTML = product.colors.map((c, i) => `
+          <button type="button" class="variant-pill ${i === 0 ? 'active' : ''}" onclick="pickColor(this, '${c}')">${c}</button>
+        `).join("");
+      }
+    } else if (colorGroup) {
+      colorGroup.style.display = "none";
+    }
+
+    // Render Storage Options
+    const storageGroup = document.getElementById("cust-storage-group");
+    const storageContainer = document.getElementById("cust-storage-options");
+    if (product.storages && product.storages.length > 0) {
+      if (storageGroup) storageGroup.style.display = "block";
+      if (storageContainer) {
+        storageContainer.innerHTML = product.storages.map((s, i) => `
+          <button type="button" class="variant-pill ${i === 0 ? 'active' : ''}" onclick="pickStorage(this, '${s}')">${s}</button>
+        `).join("");
+      }
+    } else if (storageGroup) {
+      storageGroup.style.display = "none";
+    }
+
+    if (customizerOverlay) customizerOverlay.classList.add("active");
+  };
+
+  window.closeCustomizer = function() {
+    if (customizerOverlay) customizerOverlay.classList.remove("active");
+  };
+
+  window.pickColor = function(btn, color) {
+    selectedColor = color;
+    if (btn && btn.parentElement) {
+      btn.parentElement.querySelectorAll(".variant-pill").forEach(p => p.classList.remove("active"));
+      btn.classList.add("active");
+    }
+  };
+
+  window.pickStorage = function(btn, storage) {
+    selectedStorage = storage;
+    if (btn && btn.parentElement) {
+      btn.parentElement.querySelectorAll(".variant-pill").forEach(p => p.classList.remove("active"));
+      btn.classList.add("active");
+    }
+  };
+
+  window.confirmCustomizedAddToCart = function() {
+    if (!activeCustomizerProduct) return;
+    executeAddToCart(activeCustomizerProduct, selectedColor, selectedStorage);
+    window.closeCustomizer();
+  };
+
+  // 6. Cart Actions
   window.addToCart = function(productId) {
-    const product = products.find(p => p.id === productId);
+    const product = typeof products !== "undefined" ? products.find(p => p.id === productId) : null;
     if (!product) return;
 
-    const existingIndex = cart.findIndex(item => item.id === productId);
+    const hasColors = product.colors && product.colors.length > 0;
+    const hasStorages = product.storages && product.storages.length > 0;
+
+    // Open customizer modal if variants exist
+    if (hasColors || hasStorages) {
+      window.openCustomizer(product);
+    } else {
+      executeAddToCart(product, null, null);
+    }
+  };
+
+  function executeAddToCart(product, color, storage) {
+    let variantLabel = "";
+    if (color && storage) variantLabel = ` (${color}, ${storage})`;
+    else if (color) variantLabel = ` (${color})`;
+    else if (storage) variantLabel = ` (${storage})`;
+
+    const displayName = `${product.name}${variantLabel}`;
+
+    // Total existing units of this base product already in cart
+    const currentTotalInCart = cart
+      .filter(item => item.id === product.id)
+      .reduce((sum, item) => sum + item.quantity, 0);
+
+    if (currentTotalInCart >= product.stock) {
+      openCart();
+      return;
+    }
+
+    // Match exact item by both ID and customized options
+    const existingIndex = cart.findIndex(item => item.id === product.id && item.name === displayName);
+
     if (existingIndex > -1) {
       cart[existingIndex].quantity += 1;
     } else {
+      if (product.stock <= 0) return;
       cart.push({
-        id: product.id,
-        name: product.name,
+        id: product.id,       // Preserves exact MySQL primary key
+        name: displayName,    // Displays variant label in cart & receipt
         price: product.price,
         image: product.image,
         quantity: 1
@@ -117,21 +280,32 @@ document.addEventListener("DOMContentLoaded", () => {
 
     saveCart();
     openCart();
-  };
+  }
 
-  window.updateQty = function(productId, delta) {
-    const item = cart.find(i => i.id === productId);
+  window.updateQty = function(productId, delta, itemName) {
+    const item = cart.find(i => i.id === productId && (!itemName || i.name === itemName));
     if (!item) return;
+
+    if (delta > 0 && typeof products !== "undefined") {
+      const catalogItem = products.find(p => p.id === productId);
+      const currentTotalInCart = cart
+        .filter(i => i.id === productId)
+        .reduce((sum, i) => sum + i.quantity, 0);
+
+      if (catalogItem && currentTotalInCart >= catalogItem.stock) {
+        return;
+      }
+    }
 
     item.quantity += delta;
     if (item.quantity <= 0) {
-      cart = cart.filter(i => i.id !== productId);
+      cart = cart.filter(i => !(i.id === productId && i.name === item.name));
     }
     saveCart();
   };
 
-  window.removeFromCart = function(productId) {
-    cart = cart.filter(i => i.id !== productId);
+  window.removeFromCart = function(productId, itemName) {
+    cart = cart.filter(i => !(i.id === productId && (!itemName || i.name === itemName)));
     saveCart();
   };
 
@@ -144,28 +318,71 @@ document.addEventListener("DOMContentLoaded", () => {
       if (subtotalElem) subtotalElem.textContent = "R 0.00";
       if (vatElem) vatElem.textContent = "R 0.00";
       if (totalElem) totalElem.textContent = "R 0.00";
-      if (checkoutBtn) checkoutBtn.disabled = true;
+      if (checkoutBtn) {
+        checkoutBtn.disabled = true;
+        checkoutBtn.removeAttribute("title");
+      }
       return;
     }
 
-    if (checkoutBtn) checkoutBtn.disabled = false;
+    let hasStockConflict = false;
 
     if (cartItemsContainer) {
-      cartItemsContainer.innerHTML = cart.map(item => `
-        <div class="cart-item">
-          <img src="${item.image}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/60'">
-          <div class="cart-item-details">
-            <div class="cart-item-title">${item.name}</div>
-            <div class="cart-item-price">R ${(item.price * item.quantity).toFixed(2)}</div>
-            <div class="cart-qty-controls">
-              <button class="qty-btn" onclick="updateQty('${item.id}', -1)">-</button>
-              <span class="qty-count">${item.quantity}</span>
-              <button class="qty-btn" onclick="updateQty('${item.id}', 1)">+</button>
-              <button class="remove-item-btn" onclick="removeFromCart('${item.id}')">Remove</button>
+      cartItemsContainer.innerHTML = cart.map(item => {
+        const catalogItem = (typeof products !== "undefined") ? products.find(p => p.id === item.id) : null;
+        const availableStock = catalogItem ? catalogItem.stock : 999;
+        
+        const totalBaseInCart = cart
+          .filter(i => i.id === item.id)
+          .reduce((sum, i) => sum + i.quantity, 0);
+
+        const isAtMax = totalBaseInCart >= availableStock;
+
+        if (totalBaseInCart > availableStock) {
+          hasStockConflict = true;
+        }
+
+        // Escape single quotes for inline JS calls
+        const escapedName = item.name.replace(/'/g, "\\'");
+
+        return `
+          <div class="cart-item">
+            <img src="${item.image}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/60'">
+            <div class="cart-item-details">
+              <div class="cart-item-title">${item.name}</div>
+              <div class="cart-item-price">R ${(item.price * item.quantity).toFixed(2)}</div>
+              <div class="cart-qty-controls">
+                <button class="qty-btn" onclick="updateQty('${item.id}', -1, '${escapedName}')">-</button>
+                <span class="qty-count">${item.quantity}</span>
+                <button 
+                  class="qty-btn" 
+                  onclick="updateQty('${item.id}', 1, '${escapedName}')" 
+                  ${isAtMax ? 'disabled title="Maximum available stock reached" style="opacity:0.35;cursor:not-allowed;"' : ''}
+                >+</button>
+                <button class="remove-item-btn" onclick="removeFromCart('${item.id}', '${escapedName}')">Remove</button>
+              </div>
+              ${isAtMax ? `
+                <div style="font-size: 11px; color: #b45309; background: #fffbeb; padding: 3px 6px; border-radius: 4px; margin-top: 6px; font-weight: 600; display: inline-block; border: 1px solid #fde68a;">
+                  ⚠️ Max stock reached (${availableStock} available)
+                </div>
+              ` : ''}
             </div>
           </div>
-        </div>
-      `).join("");
+        `;
+      }).join("");
+    }
+
+    if (checkoutBtn) {
+      checkoutBtn.disabled = hasStockConflict;
+      if (hasStockConflict) {
+        checkoutBtn.title = "Please adjust cart quantities before checkout";
+        checkoutBtn.style.opacity = "0.5";
+        checkoutBtn.style.cursor = "not-allowed";
+      } else {
+        checkoutBtn.removeAttribute("title");
+        checkoutBtn.style.opacity = "1";
+        checkoutBtn.style.cursor = "pointer";
+      }
     }
 
     const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -177,7 +394,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (totalElem) totalElem.textContent = `R ${total.toFixed(2)}`;
   }
 
-  // 6. Drawer Navigation
+  // 7. Drawer Navigation
   function openCart() {
     if (cartDrawer) cartDrawer.classList.add("open");
     if (cartOverlay) cartOverlay.classList.add("active");
@@ -192,9 +409,24 @@ document.addEventListener("DOMContentLoaded", () => {
   if (closeCartBtn) closeCartBtn.addEventListener("click", closeCart);
   if (cartOverlay) cartOverlay.addEventListener("click", closeCart);
 
-  // 7. Checkout Modal Open/Close Logic
+  // 8. Checkout Modal Open/Close Logic
   function openCheckout() {
     if (cart.length === 0) return;
+
+    if (typeof products !== "undefined") {
+      for (const item of cart) {
+        const catalogItem = products.find(p => p.id === item.id);
+        const totalBaseInCart = cart
+          .filter(i => i.id === item.id)
+          .reduce((sum, i) => sum + i.quantity, 0);
+
+        if (catalogItem && totalBaseInCart > catalogItem.stock) {
+          alert(`Cannot proceed: You have ${totalBaseInCart} units of "${catalogItem.name}" in your cart, but only ${catalogItem.stock} are available.`);
+          return;
+        }
+      }
+    }
+
     closeCart();
 
     const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -214,7 +446,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (checkoutBtn) checkoutBtn.addEventListener("click", openCheckout);
   if (closeCheckoutBtn) closeCheckoutBtn.addEventListener("click", closeCheckoutModal);
 
-  // 8. Payment Method Selection
+  // 9. Payment Method & Bank Selection
   window.selectPayMethod = function(method) {
     activePaymentMethod = method;
     const tabs = document.querySelectorAll(".payment-tabs .tab-btn");
@@ -235,7 +467,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
-  // 9. Card Format & Detection
+  window.selectBank = function(btn, bankName) {
+    selectedBankName = bankName;
+    const hiddenInput = document.getElementById("selected-bank");
+    if (hiddenInput) hiddenInput.value = bankName;
+
+    const cards = document.querySelectorAll(".bank-card");
+    cards.forEach(c => c.classList.remove("active"));
+    btn.classList.add("active");
+  };
+
+  // 10. Card Format & Detection
   if (cardNumInput) {
     cardNumInput.addEventListener("input", (e) => {
       let val = e.target.value.replace(/\D/g, "");
@@ -269,10 +511,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const totalAmount = (subtotal * 1.15).toFixed(2);
     const orderRef = "BTH-" + Math.floor(100000 + Math.random() * 900000);
 
-    // Generate 6-digit numeric PIN
     generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
 
-    // Cache checkout data until OTP verification
     pendingOrderData = {
       orderRef,
       customerName,
@@ -288,7 +528,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (otpTarget) otpTarget.textContent = customerEmail;
     if (otpView) otpView.style.display = "block";
 
-    // Send OTP via EmailJS
     emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_OTP_TEMPLATE_ID, {
       customer_name: customerName,
       customer_email: customerEmail,
@@ -318,17 +557,21 @@ document.addEventListener("DOMContentLoaded", () => {
     const { orderRef, customerName, customerEmail, customerAddress, totalAmount, cartSnapshot } = pendingOrderData;
     const itemsList = cartSnapshot.map(i => `- ${i.name} x${i.quantity} (R ${(i.price * i.quantity).toFixed(2)})`).join("\n");
 
-    // 1. Post order to ASP.NET Core API to write into MySQL
+    const paymentLabel = activePaymentMethod === "card" 
+      ? "Credit/Debit Card (3D Secure)" 
+      : `Instant EFT (${selectedBankName})`;
+
+    // 1. Post order to ASP.NET Core API to validate stock and record into MySQL
     try {
       const orderPayload = {
         orderRef: orderRef,
         customerName: customerName,
         customerEmail: customerEmail,
         deliveryAddress: customerAddress,
-        paymentMethod: activePaymentMethod === "card" ? "Credit/Debit Card (3D Secure)" : "Instant EFT",
+        paymentMethod: paymentLabel,
         totalAmount: parseFloat(totalAmount),
         items: cartSnapshot.map(i => ({
-          productId: i.id,
+          productId: i.id, // Primary key intact
           quantity: i.quantity,
           unitPrice: i.price
         }))
@@ -340,22 +583,31 @@ document.addEventListener("DOMContentLoaded", () => {
         body: JSON.stringify(orderPayload)
       });
 
+      const result = await apiResponse.json();
+
       if (!apiResponse.ok) {
-        console.warn("Backend order persistence responded with error:", apiResponse.status);
-      } else {
-        console.log("Order stored successfully in MySQL database!");
+        if (processingView) processingView.style.display = "none";
+        closeCheckoutModal();
+        alert(`Order Rejected: ${result.message || "Insufficient inventory or error processing order."}`);
+        return;
       }
+
+      console.log("Order stored successfully in MySQL database!");
     } catch (apiErr) {
-      console.warn("Could not post order to backend API:", apiErr);
+      console.error("Could not post order to backend API:", apiErr);
+      if (processingView) processingView.style.display = "none";
+      closeCheckoutModal();
+      alert("Checkout failed: Could not connect to API server.");
+      return;
     }
 
-    // 2. Dispatch final EmailJS receipt
+    // 2. Dispatch final EmailJS receipt ONLY IF backend approved the order
     const emailParams = {
       order_ref: orderRef,
       customer_name: customerName,
       customer_email: customerEmail,
       delivery_address: customerAddress,
-      payment_method: activePaymentMethod === "card" ? "Credit/Debit Card (3D Secure)" : "Instant EFT",
+      payment_method: paymentLabel,
       total_amount: `R ${totalAmount}`,
       items_list: itemsList
     };
