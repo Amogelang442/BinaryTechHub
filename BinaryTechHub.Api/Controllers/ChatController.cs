@@ -28,7 +28,7 @@ public class ChatController : ControllerBase
         var apiKey = _config["GEMINI_API_KEY"] ?? Environment.GetEnvironmentVariable("GEMINI_API_KEY");
         if (string.IsNullOrEmpty(apiKey))
         {
-            return StatusCode(500, new { reply = "AI assistant service is currently unconfigured." });
+            return StatusCode(500, new { reply = "AI assistant service is currently unconfigured (missing GEMINI_API_KEY)." });
         }
 
         var systemInstruction = @"
@@ -42,7 +42,7 @@ Guidelines:
 ";
 
         var client = _httpClientFactory.CreateClient();
-        var requestUrl = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={apiKey}";
+        var requestUrl = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={apiKey}";
 
         var requestBody = new
         {
@@ -57,7 +57,7 @@ Guidelines:
             }
         };
 
-        var requestUrl = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={apiKey}";
+        var content = new StringContent(JsonSerializer.Serialize(requestBody), Encoding.UTF8, "application/json");
 
         try
         {
@@ -66,7 +66,6 @@ Guidelines:
 
             if (!response.IsSuccessStatusCode)
             {
-                // Return the actual error message from Google to the chat for easy debugging
                 return StatusCode((int)response.StatusCode, new { 
                     reply = $"Google API error ({(int)response.StatusCode}): {responseJson}" 
                 });
