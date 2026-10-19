@@ -57,17 +57,21 @@ Guidelines:
             }
         };
 
-        var content = new StringContent(JsonSerializer.Serialize(requestBody), Encoding.UTF8, "application/json");
+        var requestUrl = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={apiKey}";
 
         try
         {
             var response = await client.PostAsync(requestUrl, content);
+            var responseJson = await response.Content.ReadAsStringAsync();
+
             if (!response.IsSuccessStatusCode)
             {
-                return StatusCode(502, new { reply = "Our hardware consultant is currently offline. Please try again shortly." });
+                // Return the actual error message from Google to the chat for easy debugging
+                return StatusCode((int)response.StatusCode, new { 
+                    reply = $"Google API error ({(int)response.StatusCode}): {responseJson}" 
+                });
             }
 
-            var responseJson = await response.Content.ReadAsStringAsync();
             using var doc = JsonDocument.Parse(responseJson);
             
             var replyText = doc.RootElement
