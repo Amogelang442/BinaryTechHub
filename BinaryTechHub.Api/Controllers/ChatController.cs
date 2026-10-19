@@ -61,13 +61,33 @@ Guidelines:
 
         try
         {
-            var response = await client.PostAsync(requestUrl, content);
-            var responseJson = await response.Content.ReadAsStringAsync();
+            HttpResponseMessage? response = null;
+            string responseJson = string.Empty;
+            int maxRetries = 3;
 
-            if (!response.IsSuccessStatusCode)
+            for (int attempt = 1; attempt <= maxRetries; attempt++)
             {
-                return StatusCode((int)response.StatusCode, new { 
-                    reply = $"Google API error ({(int)response.StatusCode}): {responseJson}" 
+                response = await client.PostAsync(requestUrl, content);
+                responseJson = await response.Content.ReadAsStringAsync();
+
+                // If successful, exit retry loop
+                if (response.IsSuccessStatusCode) break;
+
+                // If 503 Service Unavailable / High Demand, wait briefly and retry
+                if ((int)response.StatusCode == 503 && attempt < maxRetries)
+                {
+                    await Task.Delay(1500); // Wait 1.5 seconds before retrying
+                    continue;
+                }
+
+                // If another error occurred, stop retrying
+                break;
+            }
+
+            if (response == null || !response.IsSuccessStatusCode)
+            {
+                return StatusCode((int)(response?.StatusCode ?? System.Net.HttpStatusCode.BadGateway), new { 
+                    reply = $"Google API error ({(int)(response?.StatusCode ?? System.Net.HttpStatusCode.BadGateway)}): {responseJson}" 
                 });
             }
 
