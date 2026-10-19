@@ -647,3 +647,75 @@ document.addEventListener("DOMContentLoaded", () => {
   filterCatalog("all");
   updateCartDisplay();
 });
+
+// ==========================================================================
+// AI ASSISTANT CLIENT LOGIC
+// ==========================================================================
+
+function toggleAiChat() {
+  const drawer = document.getElementById('ai-chat-drawer');
+  if (!drawer) return;
+
+  const isVisible = drawer.style.display !== 'none';
+  drawer.style.display = isVisible ? 'none' : 'flex';
+
+  if (!isVisible) {
+    const input = document.getElementById('ai-chat-input');
+    if (input) input.focus();
+  }
+}
+
+async function handleAiChatSubmit(event) {
+  event.preventDefault();
+
+  const input = document.getElementById('ai-chat-input');
+  const chatLog = document.getElementById('ai-chat-log');
+  const userText = input.value.trim();
+
+  if (!userText) return;
+
+  // Append User message
+  const userBubble = document.createElement('div');
+  userBubble.className = 'ai-bubble ai-bubble-user';
+  userBubble.textContent = userText;
+  chatLog.appendChild(userBubble);
+
+  input.value = '';
+  chatLog.scrollTop = chatLog.scrollHeight;
+
+  // Append Thinking indicator
+  const loadingBubble = document.createElement('div');
+  loadingBubble.className = 'ai-bubble ai-bubble-loading';
+  loadingBubble.textContent = 'Consulting catalog...';
+  chatLog.appendChild(loadingBubble);
+  chatLog.scrollTop = chatLog.scrollHeight;
+
+  try {
+    const response = await fetch('https://binarytechhub-api.onrender.com/api/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ message: userText })
+    });
+
+    const data = await response.json();
+    loadingBubble.remove();
+
+    const assistantBubble = document.createElement('div');
+    assistantBubble.className = 'ai-bubble ai-bubble-assistant';
+    assistantBubble.textContent = data.reply || 'No response received from assistant.';
+    chatLog.appendChild(assistantBubble);
+  } catch (error) {
+    console.error('AI chat failed:', error);
+    loadingBubble.remove();
+
+    const errorBubble = document.createElement('div');
+    errorBubble.className = 'ai-bubble ai-bubble-assistant';
+    errorBubble.style.color = '#ef4444';
+    errorBubble.textContent = 'Connection error. Please ensure the backend is running.';
+    chatLog.appendChild(errorBubble);
+  }
+
+  chatLog.scrollTop = chatLog.scrollHeight;
+}
