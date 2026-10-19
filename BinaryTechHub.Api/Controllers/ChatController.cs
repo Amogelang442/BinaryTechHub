@@ -42,7 +42,7 @@ Guidelines:
 ";
 
         var client = _httpClientFactory.CreateClient();
-        var requestUrl = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={apiKey}";
+        var requestUrl = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key={apiKey}";
 
         var requestBody = new
         {
