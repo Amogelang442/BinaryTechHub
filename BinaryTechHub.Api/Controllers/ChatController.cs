@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using BinaryTechHub.Api.Data;
 using System.Text;
 using System.Text.Json;
 
@@ -10,11 +12,13 @@ public class ChatController : ControllerBase
 {
     private readonly IConfiguration _config;
     private readonly IHttpClientFactory _httpClientFactory;
+    private readonly AppDbContext _db;
 
-    public ChatController(IConfiguration config, IHttpClientFactory httpClientFactory)
+    public ChatController(IConfiguration config, IHttpClientFactory httpClientFactory, AppDbContext db)
     {
         _config = config;
         _httpClientFactory = httpClientFactory;
+        _db = db;
     }
 
     [HttpPost]
@@ -31,14 +35,35 @@ public class ChatController : ControllerBase
             return StatusCode(500, new { reply = "AI assistant service is currently unconfigured (missing GEMINI_API_KEY)." });
         }
 
-        var systemInstruction = @"
-You are the official AI hardware consultant for 'Binary Tech Hub', South Africa's premier technology and hardware retail platform.
-Guidelines:
-- All prices are strictly in South African Rand (ZAR / R).
-- We offer nationwide 24h express delivery.
-- Key categories: Smartphones (Apple iPhone, Samsung Galaxy flagships), Laptops & Computers (MacBooks, gaming laptops), 3D Printers, Audiophile audio/speakers, Gaming consoles, and Peripherals.
-- Keep answers direct, friendly, and under 3 to 4 sentences so it displays cleanly in a mobile chat bubble.
-- If asked for a product recommendation, suggest 1 or 2 items with realistic ZAR pricing.
+        // 1. Fetch current live catalog from Aiven MySQL
+        string catalogSummary;
+        try
+        {
+            var products = await _db.Products
+                .AsNoTracking()
+                .Select(p => $"{p.Name} (ID: {p.ProductId}) - R{p.Price:N0} | Specs: {p.Specs}")
+                .ToListAsync();
+
+            catalogSummary = string.Join("\n", products);
+        }
+        catch
+        {
+            // Fallback summary in case database query times out
+            catalogSummary = "Standard catalog available in store.";
+        }
+
+        // 2. Strict system instruction grounding the AI to your exact products
+        var systemInstruction = $@"
+You are the official shopping consultant for 'Binary Tech Hub', South Africa's tech retailer.
+Store Policies:
+- Currency: Strictly South African Rand (ZAR / R).
+- Delivery: Express 24-hour nationwide delivery across South Africa.
+- Rule: ONLY recommend products from the official inventory listed below. Do not invent products or suggest items not in this list.
+- When recommending a product, mention its exact name, its price in Rands, and why it matches the customer's budget/needs.
+- Keep responses concise (2 to 4 sentences max) for clear display in a mobile chat window.
+
+Current Store Inventory:
+{catalogSummary}
 ";
 
         var client = _httpClientFactory.CreateClient();
@@ -70,24 +95,21 @@ Guidelines:
                 response = await client.PostAsync(requestUrl, content);
                 responseJson = await response.Content.ReadAsStringAsync();
 
-                // If successful, exit retry loop
                 if (response.IsSuccessStatusCode) break;
 
-                // If 503 Service Unavailable / High Demand, wait briefly and retry
                 if ((int)response.StatusCode == 503 && attempt < maxRetries)
                 {
-                    await Task.Delay(1500); // Wait 1.5 seconds before retrying
+                    await Task.Delay(1500);
                     continue;
                 }
 
-                // If another error occurred, stop retrying
                 break;
             }
 
             if (response == null || !response.IsSuccessStatusCode)
             {
                 return StatusCode((int)(response?.StatusCode ?? System.Net.HttpStatusCode.BadGateway), new { 
-                    reply = $"Google API error ({(int)(response?.StatusCode ?? System.Net.HttpStatusCode.BadGateway)}): {responseJson}" 
+                    reply = $"Service temporarily busy. Please try again." 
                 });
             }
 
