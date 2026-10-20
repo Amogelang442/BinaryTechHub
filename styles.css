@@ -1491,3 +1491,58 @@ img {
 .ai-send-btn:hover {
   background: #4338ca;
 }
+
+/* --- FOOTER CONTACT PILLS --- */
+.footer-contact-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  margin: 18px 0;
+}
+
+.contact-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 8px 16px;
+  border-radius: 50px;
+  color: #e2e8f0;
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+}
+
+.contact-icon {
+  width: 16px;
+  height: 16px;
+  stroke: #38bdf8;
+  flex-shrink: 0;
+  transition: stroke 0.2s ease;
+}
+
+.contact-pill:hover {
+  background: rgba(56, 189, 248, 0.12);
+  border-color: #38bdf8;
+  color: #38bdf8;
+  transform: translateY(-2px);
+}
+
+.contact-pill:hover .contact-icon {
+  stroke: #7dd3fc;
+}
+
+@media (max-width: 640px) {
+  .footer-contact-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  .contact-pill {
+    width: 100%;
+    justify-content: center;
+  }
+}
